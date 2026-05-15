@@ -174,7 +174,7 @@ json
 ### 1. Database Create a local Postgres database:
 1. `sh`
 
-2. `createdb tasks_casestudy`
+2. `createdb taskflow`
 
 ### 2. Server
 1. `sh`
