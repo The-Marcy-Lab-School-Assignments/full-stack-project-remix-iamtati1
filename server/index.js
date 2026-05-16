@@ -6,7 +6,7 @@ require('dotenv').config();
 const logRoutes = require('./middleware/logRoutes');
 const checkAuthentication = require('./middleware/checkAuthentication');
 const authControllers = require('./controllers/authControllers');
-const todoControllers = require('./controllers/taskControllers');
+const taskControllers = require('./controllers/taskControllers');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,15 +15,19 @@ const PORT = process.env.PORT || 8080;
 // Middleware
 // ====================================
 
-app.use(logRoutes);
-app.use(cookieSession({ name: 'session', secret: process.env.SESSION_SECRET }));
+app.use(cookieSession({
+  name: 'session',
+  secret: process.env.SESSION_SECRET,
+  httpOnly: true
+}));
+
 app.use(express.json());
+app.use(logRoutes);
 
 // In production, serve the built React app from frontend/dist.
 // In development, Vite's dev server handles the frontend on a separate port
 // and proxies /api requests to this server.
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
 // ====================================
 // Auth routes
 // ====================================
@@ -37,10 +41,10 @@ app.delete('/api/auth/logout', authControllers.logout);
 // Todo routes (all require authentication)
 // ====================================
 
-app.get('/api/tasks', checkAuthentication, todoControllers.listTasks);
-app.post('/api/tasks', checkAuthentication, todoControllers.createTasks);
-app.patch('/api/tasks/:task_id', checkAuthentication, todoControllers.updateTask);
-app.delete('/api/tasks/:task_id', checkAuthentication, todoControllers.deleteTask);
+app.get('/api/tasks', checkAuthentication, taskControllers.listTasks);
+app.post('/api/tasks', checkAuthentication, taskControllers.createTask);
+app.patch('/api/tasks/:task_id', checkAuthentication, taskControllers.updateTask);
+app.delete('/api/tasks/:task_id', checkAuthentication, taskControllers.deleteTask);
 
 // ====================================
 // Global Error Handler
@@ -57,3 +61,6 @@ app.use(handleError);
 // ====================================
 
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});

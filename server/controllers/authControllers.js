@@ -3,17 +3,25 @@ const userModel = require('../models/userModel');
 module.exports.register = async (req, res, next) => {
   try {
     const { username, password } = req.body;
+
     if (!username || !password) {
-      return res.status(400).send({ error: 'Username and password are required.' });
+      return res.status(400).send({
+        error: 'Username and password are required.'
+      });
     }
 
     const existingUser = await userModel.findByUsername(username);
+
     if (existingUser) {
-      return res.status(400).send({ error: 'Username already taken.' });
+      return res.status(400).send({
+        error: 'Username already taken.'
+      });
     }
 
     const user = await userModel.create(username, password);
+
     req.session.user_id = user.user_id;
+
     res.status(201).send(user);
   } catch (err) {
     next(err);
@@ -23,9 +31,24 @@ module.exports.register = async (req, res, next) => {
 module.exports.login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
+
+    // Missing in your current version
+    if (!username || !password) {
+      return res.status(400).send({
+        error: 'Username and password are required.'
+      });
+    }
+
     const user = await userModel.validatePassword(username, password);
-    if (!user) return res.status(401).send({ error: 'Invalid credentials.' });
+
+    if (!user) {
+      return res.status(401).send({
+        error: 'Invalid credentials.'
+      });
+    }
+
     req.session.user_id = user.user_id;
+
     res.send(user);
   } catch (err) {
     next(err);
@@ -37,8 +60,12 @@ module.exports.login = async (req, res, next) => {
 // can always call response.json() without hitting a parse error.
 module.exports.getMe = async (req, res, next) => {
   try {
-    if (!req.session.user_id) return res.json(null);
+    if (!req.session.user_id) {
+      return res.json(null);
+    }
+
     const user = await userModel.find(req.session.user_id);
+
     res.json(user);
   } catch (err) {
     next(err);
@@ -47,5 +74,8 @@ module.exports.getMe = async (req, res, next) => {
 
 module.exports.logout = (req, res) => {
   req.session = null;
-  res.send({ message: 'Logged out.' });
+
+  res.send({
+    message: 'Logged out.'
+  });
 };

@@ -1,54 +1,65 @@
-const todoModel = require('../models/taskModel');
+const taskModel = require('../models/taskModel');
 
-module.exports.listTodos = async (req, res, next) => {
+module.exports.listTasks = async (req, res, next) => {
   try {
-    const todos = await todoModel.listByUser(req.session.user_id);
-    res.send(todos);
+    const tasks = await taskModel.getTasksByUser(req.session.user_id);
+    res.send(tasks);
   } catch (err) {
     next(err);
   }
 };
 
-module.exports.createTodo = async (req, res, next) => {
+module.exports.createTask = async (req, res, next) => {
   try {
-    const { title } = req.body;
+    const { title, priority, due_date, category_id } = req.body;
     if (!title) return res.status(400).send({ error: 'Title is required.' });
-    const todo = await todoModel.create(title, req.session.user_id);
-    res.status(201).send(todo);
+    const task = await taskModel.createTask({ title, priority, due_date, category_id, user_id: req.session.user_id });
+    res.status(201).send(task);
   } catch (err) {
     next(err);
   }
 };
 
-module.exports.updateTodo = async (req, res, next) => {
+module.exports.updateTask = async (req, res, next) => {
   try {
-    const { todo_id } = req.params;
-    const todo = await todoModel.find(todo_id);
-    if (!todo) return res.status(404).send({ error: 'Todo not found.' });
-    if (todo.user_id !== req.session.user_id) {
+    const { task_id } = req.params;
+
+    const task = await taskModel.getTaskById(task_id);
+
+    if (!task) {
+      return res.status(404).send({ error: 'Task not found.' });
+    }
+
+    if (task.user_id !== req.session.user_id) {
       return res.status(403).send({ error: 'Not authorized.' });
     }
-    const updatedTodo = await todoModel.update(todo_id, req.body);
-    res.send(updatedTodo);
+
+    const { title, is_complete, priority, due_date, category_id } = req.body;
+
+    const updatedTask = await taskModel.updateTask(task_id, {
+      title, is_complete, priority, due_date, category_id
+    });
+
+    res.send(updatedTask);
   } catch (err) {
     next(err);
   }
 };
 
-module.exports.deleteTodo = async (req, res, next) => {
+module.exports.deleteTask = async (req, res, next) => {
   try {
-    const { todo_id } = req.params;
+    const { task_id } = req.params;
 
-    // First find the todo to verify ownership
-    const todo = await todoModel.find(todo_id);
-    if (!todo) return res.status(404).send({ error: 'Todo not found.' });
-    if (todo.user_id !== req.session.user_id) {
+    // First find the task to verify ownership
+    const task = await taskModel.getTaskById(task_id);
+    if (!task) return res.status(404).send({ error: 'Task not found.' });
+    if (task.user_id !== req.session.user_id) {
       return res.status(403).send({ error: 'Not authorized.' });
     }
 
-    // Destroy the todo only after ownership has been verified
-    const destroyedTodo = await todoModel.destroy(todo_id);
-    res.send(destroyedTodo);
+    // Destroy the task only after ownership has been verified
+    const destroyedTask = await taskModel.deleteTask(task_id, req.session.user_id);
+    res.send(destroyedTask);
   } catch (err) {
     next(err);
   }
