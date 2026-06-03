@@ -1,5 +1,5 @@
 function ExecutionBlock({
-    tasks,
+    tasks = [],
     isLoading,
     error,
     loadTasks,
@@ -18,14 +18,14 @@ function ExecutionBlock({
                 <AddTaskForm loadTasks={loadTasks} />
             </div>
 
-            {/* LOADING */}
+            {/* LOADING STATE */}
             {isLoading && (
-                <div className="text-muted animate-pulse">
+                <div className="text-white/40 animate-pulse">
                     Loading your workflow...
                 </div>
             )}
 
-            {/* ERROR */}
+            {/* ERROR STATE */}
             {error && (
                 <div className="flow-card border border-red-500/20 bg-red-500/10 text-red-300 p-4">
                     {error}
@@ -44,3 +44,5 @@ function ExecutionBlock({
         </div>
     );
 }
+
+export default ExecutionBlock;

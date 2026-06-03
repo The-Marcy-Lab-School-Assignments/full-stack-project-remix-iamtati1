@@ -1,542 +1,255 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* =========================================================
-   🌌 FLOW DESIGN SYSTEM — MODERNIZED
-   ========================================================= */
+   🌌 GLOBAL DESIGN SYSTEM
+========================================================= */
 
 :root {
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-muted: rgba(255, 255, 255, 0.45);
 
-  /* =========================
-     🎨 COLORS
-     ========================= */
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --bg-primary: #050816;
-  --bg-secondary: #0b1120;
-  --bg-tertiary: #111827;
-
-  --flow-cyan: #22d3ee;
-  --flow-blue: #3b82f6;
-  --flow-violet: #8b5cf6;
-  --flow-pink: #ec4899;
-
-  --flow-cyan-soft: rgba(34, 211, 238, 0.12);
-  --flow-violet-soft: rgba(139, 92, 246, 0.12);
-  --flow-pink-soft: rgba(236, 72, 153, 0.10);
-
-  /* =========================
-     ✍️ TYPOGRAPHY
-     ========================= */
-
-  --text-primary: rgba(255, 255, 255, 0.96);
-  --text-secondary: rgba(255, 255, 255, 0.68);
-  --text-muted: rgba(255, 255, 255, 0.42);
-
-  /* =========================
-     🧊 GLASS
-     ========================= */
-
-  --glass-bg: rgba(255, 255, 255, 0.045);
+  --glass: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.08);
 
-  /* =========================
-     🌑 SHADOWS
-     ========================= */
-
-  --shadow-soft:
-    0 10px 30px rgba(0, 0, 0, 0.25);
-
-  --shadow-hover:
-    0 25px 80px rgba(0, 0, 0, 0.45);
-
-  /* =========================
-     ✨ GRADIENTS
-     ========================= */
-
-  --gradient-flow:
-    linear-gradient(135deg,
-      var(--flow-cyan),
-      var(--flow-blue),
-      var(--flow-violet));
+  --cyan: #22d3ee;
+  --violet: #8b5cf6;
 }
 
 /* =========================================================
-   🌍 GLOBAL BASE
-   ========================================================= */
+   🧱 BASE RESET
+========================================================= */
 
 * {
   box-sizing: border-box;
-  scroll-behavior: smooth;
 }
 
 html,
 body,
 #root {
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
   margin: 0;
-
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-
   color: var(--text-primary);
-
-  overflow-x: hidden;
-
-  background-color: var(--bg-primary);
-
-  background-image:
-    radial-gradient(circle at top left,
-      rgba(34, 211, 238, 0.08),
-      transparent 30%),
-
-    radial-gradient(circle at bottom right,
-      rgba(139, 92, 246, 0.08),
-      transparent 35%),
-
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px,
-      transparent 1px),
-
-    linear-gradient(90deg,
-      rgba(255, 255, 255, 0.015) 1px,
-      transparent 1px);
-
-  background-size:
-    auto,
-    auto,
-    40px 40px,
-    40px 40px;
+  background: #050816;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 /* =========================================================
-   📦 LAYOUT
-   ========================================================= */
+   🧊 SURFACE SYSTEM (BASE UI FOUNDATION)
+========================================================= */
 
-.container-flow {
-  width: 100%;
-  max-width: 1200px;
-
-  margin: 0 auto;
-
-  padding: 4rem 1.5rem;
-}
-
-.dashboard-section {
-  @apply space-y-6;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
-}
-
-.section-divider {
-  @apply border-t border-white/10 pt-6;
-}
-
-.subtle-divider {
-  @apply border-t border-white/5;
-}
-
-/* =========================================================
-   🌌 BACKGROUND EFFECTS
-   ========================================================= */
-
-@keyframes slow-drift {
-
-  0% {
-    transform: translate(0px, 0px);
-  }
-
-  50% {
-    transform: translate(25px, -30px);
-  }
-
-  100% {
-    transform: translate(0px, 0px);
-  }
-}
-
-.bg-drift {
-  animation: slow-drift 22s ease-in-out infinite;
-}
-
-.bg-glow {
-  position: absolute;
-
-  border-radius: 9999px;
-
-  filter: blur(90px);
-
-  opacity: 0.35;
-
-  animation: slow-drift 18s ease-in-out infinite;
-}
-
-/* =========================================================
-   🧊 CARD SYSTEM
-   ========================================================= */
-
-.flow-card {
+.surface {
   position: relative;
-
-  overflow: hidden;
-
   border-radius: 1.75rem;
 
-  background:
-    linear-gradient(145deg,
-      rgba(255, 255, 255, 0.08),
-      rgba(255, 255, 255, 0.03));
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
 
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.35);
 
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
-  transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease,
-    border-color 0.35s ease;
+  transition: transform 0.3s var(--ease-soft),
+    box-shadow 0.3s var(--ease-soft),
+    border-color 0.3s var(--ease-soft);
 }
 
-.flow-card:hover {
+.surface:hover {
   transform: translateY(-6px);
-
-  border-color: rgba(34, 211, 238, 0.25);
-
-  box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.45),
-    0 0 40px rgba(34, 211, 238, 0.08);
-}
-
-.flow-card::before {
-  content: "";
-
-  position: absolute;
-
-  inset: 0;
-
-  background:
-    radial-gradient(circle at top left,
-      rgba(34, 211, 238, 0.08),
-      transparent 60%);
-
-  opacity: 0;
-
-  transition: opacity 0.35s ease;
-}
-
-.flow-card:hover::before {
-  opacity: 1;
+  border-color: rgba(34, 211, 238, 0.2);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
 }
 
 /* =========================================================
-   🔘 BUTTON SYSTEM
-   ========================================================= */
+   🧱 CARD SYSTEM
+========================================================= */
 
-.btn-flow {
+.card {
+  @apply surface;
+  padding: 1.5rem;
+}
+
+.card-sm {
+  padding: 1rem;
+}
+
+.card-lg {
+  padding: 2rem;
+}
+
+.card-xl {
+  padding: 2.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   🧲 INTERACTIVE CARDS
+========================================================= */
+
+.card-clickable {
+  cursor: pointer;
+}
+
+.card-clickable:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+.card-active {
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+/* drag states (for future DnD) */
+.card-dragging {
+  opacity: 0.6;
+  transform: scale(1.03);
+}
+
+.card-drop {
+  border: 1px dashed rgba(34, 211, 238, 0.5);
+  background: rgba(34, 211, 238, 0.03);
+}
+
+/* =========================================================
+   🌊 SURFACES (VARIANTS)
+========================================================= */
+
+.surface-dark {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.surface-light {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* =========================================================
+   🎛 BUTTON SYSTEM
+========================================================= */
+
+.btn {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   gap: 0.5rem;
 
-  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 1rem;
 
-  padding: 0 1.25rem;
+  font-weight: 500;
+  transition: all 0.25s var(--ease-soft);
 
+  cursor: pointer;
   border: none;
-
-  border-radius: 1rem;
-
-  cursor: pointer;
-
-  font-weight: 600;
-
-  letter-spacing: -0.02em;
-
-  color: white;
-
-  background:
-    linear-gradient(135deg,
-      #06b6d4,
-      #2563eb);
-
-  box-shadow:
-    0 10px 25px rgba(37, 99, 235, 0.25);
-
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    opacity 0.25s ease;
 }
 
-.btn-flow:hover {
+/* primary */
+.btn-primary {
+  background: var(--cyan);
+  color: black;
+}
+
+.btn-primary:hover {
   transform: translateY(-2px);
-
-  box-shadow:
-    0 18px 45px rgba(59, 130, 246, 0.35);
+  filter: brightness(1.05);
 }
 
-.btn-flow:active {
-  transform: scale(0.98);
-}
-
-/* =========================
-   🔘 SECONDARY BUTTON
-   ========================= */
-
+/* secondary */
 .btn-secondary {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  min-height: 48px;
-
-  padding: 0 1.2rem;
-
-  border-radius: 1rem;
-
-  cursor: pointer;
-
-  color: rgba(255, 255, 255, 0.9);
-
   background: rgba(255, 255, 255, 0.05);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  transition: all 0.25s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.08);
-
-  border-color: rgba(255, 255, 255, 0.16);
-
   transform: translateY(-2px);
 }
 
 /* =========================================================
-   ✨ INPUT SYSTEM
-   ========================================================= */
+   ✍️ TYPOGRAPHY
+========================================================= */
 
-.input-flow {
-  width: 100%;
-
-  padding: 0.95rem 1rem;
-
-  border-radius: 1rem;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  outline: none;
-
-  color: white;
-
-  background:
-    rgba(255, 255, 255, 0.045);
-
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+.page-title {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
-.input-flow::placeholder {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.input-flow:focus {
-  border-color: rgba(34, 211, 238, 0.55);
-
-  background:
-    rgba(255, 255, 255, 0.06);
-
-  box-shadow:
-    0 0 0 4px rgba(34, 211, 238, 0.10);
-}
-
-/* =========================================================
-   🧠 TYPOGRAPHY
-   ========================================================= */
-
-.text-hero {
-  font-size: clamp(3rem, 8vw, 5rem);
-
-  line-height: 0.95;
-
-  font-weight: 800;
-
-  letter-spacing: -0.05em;
-}
-
-.text-title {
-  @apply text-2xl md:text-4xl font-semibold tracking-tight;
-}
-
-.text-section {
-  @apply text-lg font-semibold text-white;
-}
-
-.text-body {
-  @apply text-sm md:text-base leading-relaxed;
-
-  color: var(--text-secondary);
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .text-muted {
-  @apply text-xs;
-
   color: var(--text-muted);
 }
 
-.heading-flow {
-  background:
-    linear-gradient(90deg,
-      #22d3ee,
-      #3b82f6,
-      #8b5cf6);
+/* =========================================================
+   📊 GRID LAYOUT SYSTEM
+========================================================= */
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
 }
 
-.text-glow {
-  text-shadow:
-    0 0 25px rgba(34, 211, 238, 0.25);
+.col-main {
+  grid-column: span 12;
 }
 
-.card-title {
-  @apply text-lg font-semibold tracking-tight text-white;
+.col-side {
+  grid-column: span 12;
 }
 
-.card-subtitle {
-  @apply text-sm text-zinc-400 mt-1;
-}
+@media (min-width: 1280px) {
+  .col-main {
+    grid-column: span 8;
+  }
 
-.stat-number {
-  @apply text-3xl md:text-4xl font-bold tracking-tight;
-}
-
-.stat-label {
-  @apply text-xs uppercase tracking-wider text-zinc-500;
+  .col-side {
+    grid-column: span 4;
+  }
 }
 
 /* =========================================================
    ✨ UTILITIES
-   ========================================================= */
-
-.divider {
-  @apply border-t border-white/10 my-6;
-}
-
-.divider-soft {
-  @apply border-t border-zinc-800 my-4;
-}
-
-.accent-line {
-  width: 40px;
-  height: 2px;
-
-  border-radius: 999px;
-
-  background:
-    linear-gradient(90deg,
-      #22d3ee,
-      #3b82f6,
-      #8b5cf6);
-}
-
-/* =========================================================
-   🌬️ INTERACTIONS
-   ========================================================= */
-
-button,
-input,
-.flow-card {
-  will-change: transform;
-}
-
-.hover-lift {
-  transition: transform 0.3s ease;
-}
+========================================================= */
 
 .hover-lift:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
-
-.hover-scale {
-  transition: transform 0.3s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.03);
-}
-
-/* =========================================================
-   ✨ ANIMATIONS
-   ========================================================= */
 
 .fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn {
-
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* =========================================================
-   📭 EMPTY STATE
-   ========================================================= */
-
-.empty-state {
-  text-align: center;
-
-  padding: 3rem;
-
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* =========================================================
-   📱 RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-  .container-flow {
-    padding: 2rem 1rem;
-  }
-
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .text-hero {
-    line-height: 1;
   }
 }

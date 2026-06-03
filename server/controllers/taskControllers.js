@@ -3,6 +3,7 @@ const taskModel = require('../models/taskModel');
 module.exports.listTasks = async (req, res, next) => {
   try {
     const tasks = await taskModel.getTasksByUser(req.session.user_id);
+    console.log("TASKS FROM DB:", tasks);
     res.send(tasks);
   } catch (err) {
     next(err);
@@ -22,6 +23,11 @@ module.exports.createTask = async (req, res, next) => {
 
 module.exports.updateTask = async (req, res, next) => {
   try {
+
+    console.log("UPDATE BODY:", req.body);
+    console.log("TASK ID:", req.params.task_id);
+    console.log("SESSION USER:", req.session.user_id);
+
     const { task_id } = req.params;
 
     const task = await taskModel.getTaskById(task_id);
@@ -40,7 +46,10 @@ module.exports.updateTask = async (req, res, next) => {
       title, is_complete, priority, due_date, category_id
     });
 
+    console.log("UPDATED TASK:", updatedTask);
+
     res.send(updatedTask);
+
   } catch (err) {
     next(err);
   }

@@ -1,8 +1,13 @@
 const checkAuthentication = (req, res, next) => {
-  if (!req.session.user_id) {
-    return res.status(401).send({ error: 'You must be logged in.' });
+  console.log("SESSION IN AUTH:", req.session);
+
+  if (!req.session || !req.session.user_id) {
+    return res.status(401).send({
+      error: "You must be logged in."
+    });
   }
-  next(); //continue to the next step in the middleware chain.
+
+  next();
 };
 
 module.exports = checkAuthentication;

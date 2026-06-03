@@ -1,19 +1,34 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 const SERVER_PORT = 8080;
 
-// The proxy makes browser requests to /api (from localhost:5173) appear as
-// same-origin requests to the Express server on localhost:8080. The browser
-// sends session cookies automatically, just like in production where the
-// Express server serves the built frontend from the same origin.
 export default defineConfig({
   plugins: [react()],
+
   server: {
+    host: "localhost",
+    port: 5173,
+    strictPort: true,
+
+    hmr: {
+      protocol: "ws",
+      host: "localhost",
+      port: 5173,
+    },
+
     proxy: {
-      '/api': {
+      "/api": {
         target: `http://localhost:${SERVER_PORT}`,
         changeOrigin: true,
+
+        // 🔥 IMPORTANT: ensures cookies/session headers behave correctly
+        cookieDomainRewrite: "localhost",
+
+        secure: false,
+
+        // optional but helpful for debugging
+        logLevel: "debug",
       },
     },
   },

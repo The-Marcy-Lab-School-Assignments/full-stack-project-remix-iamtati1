@@ -1,24 +1,23 @@
 function WelcomeBanner({ currentUser }) {
     const hour = new Date().getHours();
 
-    let greeting = "Welcome";
+    const greeting =
+        hour < 12
+            ? "Good Morning"
+            : hour < 18
+                ? "Good Afternoon"
+                : "Good Evening";
 
-    if (hour < 12) {
-        greeting = "Good Morning";
-    } else if (hour < 18) {
-        greeting = "Good Afternoon";
-    } else {
-        greeting = "Good Evening";
-    }
+    const username = currentUser?.username || "there";
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-3">
 
-            {/* MAIN HEADER */}
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+            {/* HEADER */}
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
                 {greeting},{" "}
                 <span className="text-cyan-300">
-                    {currentUser?.username || "there"}
+                    {username}
                 </span>
             </h1>
 
@@ -26,7 +25,7 @@ function WelcomeBanner({ currentUser }) {
             <div className="w-16 h-px bg-cyan-400/40" />
 
             {/* SUBTEXT */}
-            <p className="text-zinc-400 text-sm md:text-base max-w-md leading-relaxed">
+            <p className="text-sm md:text-base text-white/50 max-w-md leading-relaxed">
                 Stay focused. Small progress compounds over time.
             </p>
 

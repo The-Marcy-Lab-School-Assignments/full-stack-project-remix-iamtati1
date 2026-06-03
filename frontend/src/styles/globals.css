@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   🌌 FLOW DESIGN SYSTEM (CLEAN CORE)
+========================================================= */
+
+:root {
+    /* ================= COLORS ================= */
+    --bg-primary: #050816;
+    --bg-secondary: #0b1120;
+
+    --flow-cyan: #22d3ee;
+    --flow-blue: #3b82f6;
+    --flow-violet: #8b5cf6;
+
+    --text-primary: rgba(255, 255, 255, 0.96);
+    --text-secondary: rgba(255, 255, 255, 0.68);
+    --text-muted: rgba(255, 255, 255, 0.42);
+
+    /* ================= SURFACES ================= */
+    --glass: rgba(255, 255, 255, 0.045);
+    --glass-border: rgba(255, 255, 255, 0.08);
+
+    /* ================= SHADOWS ================= */
+    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.25);
+    --shadow-hover: 0 25px 80px rgba(0, 0, 0, 0.45);
+
+    /* ================= GRADIENT ================= */
+    --gradient-flow: linear-gradient(135deg,
+            var(--flow-cyan),
+            var(--flow-blue),
+            var(--flow-violet));
+}
+
+/* =========================================================
+   🌍 GLOBAL RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+html,
+body,
+#root {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+
+    font-family: Inter, system-ui, sans-serif;
+
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+
+    background-image:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.08), transparent 35%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+
+    background-size: auto, auto, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+}
+
+/* =========================================================
+   📦 LAYOUT HELPERS
+========================================================= */
+
+.container-flow {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+}
+
+/* =========================================================
+   🌌 BACKGROUND EFFECTS
+========================================================= */
+
+.app-background {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.app-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+.app-glow-cyan,
+.app-glow-violet {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(140px);
+}
+
+.app-glow-cyan {
+    top: -20%;
+    left: -10%;
+    width: 40rem;
+    height: 40rem;
+    background: rgba(34, 211, 238, 0.12);
+}
+
+.app-glow-violet {
+    right: -10%;
+    bottom: -25%;
+    width: 42rem;
+    height: 42rem;
+    background: rgba(139, 92, 246, 0.12);
+}
+
+/* =========================================================
+   🧊 SURFACES (GLASS SYSTEM)
+========================================================= */
+
+.surface-base {
+    border-radius: 2rem;
+    border: 1px solid var(--glass-border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.surface-base:hover {
+    transform: translateY(-4px);
+    border-color: rgba(34, 211, 238, 0.2);
+    box-shadow: var(--shadow-hover);
+}
+
+.flow-card {
+    @apply surface-base;
+}
+
+/* =========================================================
+   🔘 BUTTON SYSTEM
+========================================================= */
+
+.btn-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    min-height: 48px;
+    padding: 0.85rem 1.35rem;
+    border-radius: 1rem;
+
+    font-weight: 600;
+    color: white;
+
+    background: var(--gradient-flow);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
+
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 45px rgba(59, 130, 246, 0.35);
+}
+
+.btn-secondary {
+    @apply inline-flex items-center justify-center gap-2;
+    min-height: 48px;
+    padding: 0.85rem 1.35rem;
+
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+
+    transition: all 0.25s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+   ✨ INPUT SYSTEM (FIXED — SINGLE SOURCE OF TRUTH)
+========================================================= */
+
+.input-shell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    height: 3.5rem;
+    padding: 0 1rem;
+
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    background: rgba(255, 255, 255, 0.035);
+    transition: all 0.3s ease;
+}
+
+.input-shell:focus-within {
+    border-color: rgba(34, 211, 238, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.input-flow {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+}
+
+.input-flow::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* =========================================================
+   🧠 TYPOGRAPHY
+========================================================= */
+
+.text-hero {
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: 0.95;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+}
+
+.text-body {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   📇 CARD HELPERS
+========================================================= */
+
+.metric-card,
+.panel-card,
+.dashboard-card {
+    @apply surface-base p-6;
+}
+
+/* =========================================================
+   ✨ UTILITIES
+========================================================= */
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+}
+
+.hover-scale:hover {
+    transform: scale(1.03);
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   📱 RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+    .container-flow {
+        padding: 2rem 1rem;
+    }
+}

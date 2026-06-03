@@ -4,9 +4,8 @@ const cookieSession = require('cookie-session');
 require('dotenv').config();
 
 const logRoutes = require('./middleware/logRoutes');
-const checkAuthentication = require('./middleware/checkAuthentication');
 const authControllers = require('./controllers/authControllers');
-const taskControllers = require('./controllers/taskControllers');
+const taskRoutes = require("./routes/taskRoutes");
 const cors = require('cors');
 
 const app = express();
@@ -30,9 +29,25 @@ app.use(cookieSession({
   secure: false
 }));
 
+app.use((req, res, next) => {
+  console.log("➡️ REQUEST:", req.method, req.url);
+  console.log("➡️ SESSION:", req.session);
+  next();
+});
+
 app.use(express.json());
 app.use(logRoutes);
 
+// ====================================
+// Health Check / Root Route
+// ====================================
+
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'Backend server is running',
+  });
+});
 // In production, serve the built React app from frontend/dist.
 // In development, Vite's dev server handles the frontend on a separate port
 // and proxies /api requests to this server.
@@ -47,13 +62,10 @@ app.get('/api/auth/me', authControllers.getMe);
 app.delete('/api/auth/logout', authControllers.logout);
 
 // ====================================
-// Todo routes (all require authentication)
+// Task Routes
 // ====================================
 
-app.get('/api/tasks', checkAuthentication, taskControllers.listTasks);
-app.post('/api/tasks', checkAuthentication, taskControllers.createTask);
-app.patch('/api/tasks/:task_id', checkAuthentication, taskControllers.updateTask);
-app.delete('/api/tasks/:task_id', checkAuthentication, taskControllers.deleteTask);
+app.use("/api/tasks", taskRoutes);
 
 // ====================================
 // Global Error Handler
@@ -73,3 +85,13 @@ app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`)
 // app.get('*', (req, res) => {
 //   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 // });
+
+const pool = require("./db/pool");
+
+app.get("/db-check", async (req, res) => {
+  const result = await pool.query(
+    "SELECT current_database()"
+  );
+
+  res.send(result.rows);
+});
