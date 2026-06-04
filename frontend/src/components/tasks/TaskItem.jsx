@@ -1,3 +1,8 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 function TaskItem(props) {
   const {
     task,
@@ -11,9 +16,9 @@ function TaskItem(props) {
   if (!task) return null;
 
   const safeTask = task;
+  const id = safeTask.task_id;
 
   const [isEditing, setIsEditing] = useState(false);
-
   const [editedTitle, setEditedTitle] = useState(safeTask.title || "");
   const [editedPriority, setEditedPriority] = useState(safeTask.priority || "medium");
   const [editedDueDate, setEditedDueDate] = useState(
@@ -37,14 +42,13 @@ function TaskItem(props) {
   };
 
   const {
-    attributes,
-    listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging,
+    attributes,
+    listeners,
   } = useSortable({
-    id: safeTask.id,
+    id,
     disabled: isEditing,
   });
 
@@ -57,16 +61,28 @@ function TaskItem(props) {
     <motion.li
       ref={setNodeRef}
       style={style}
-      className="relative"
+      className={`p-3 rounded border ${isSelected ? "bg-gray-200" : "bg-white"}`}
+      {...attributes}
+      {...listeners}
     >
       <div onClick={onSelect}>
         <h3>{safeTask.title || "Untitled Task"}</h3>
 
-        <button onClick={(e) => { e.stopPropagation(); onToggle(); }}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+          }}
+        >
           Toggle
         </button>
 
-        <button onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
           Delete
         </button>
       </div>

@@ -17,15 +17,17 @@ function TaskList({
             {tasks.map((task) => {
                 if (!task) return null;
 
+                const id = task.task_id; // ✅ STANDARDIZED
+
                 return (
                     <TaskItem
-                        key={task.id}
+                        key={id}
                         task={task}
-                        onDelete={() => onDelete(task.id)}
-                        onToggle={() => onToggle(task.id)}
-                        onSelect={() => onSelect(task.id)}
-                        onEdit={(updates) => onEdit(task.id, updates)}
-                        isSelected={selectedTaskId === task.id}
+                        onDelete={() => onDelete(id)}
+                        onToggle={() => onToggle(id)}
+                        onSelect={() => onSelect?.(id)}
+                        onEdit={(updates) => onEdit?.(id, updates)}
+                        isSelected={selectedTaskId === id}
                     />
                 );
             })}

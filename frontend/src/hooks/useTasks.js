@@ -1,13 +1,33 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-import {
-    getTasks,
-    createTask,
-    updateTask,
-    deleteTask,
-} from "../api/tasks";
+import { taskApi } from "../api/tasks";
+
+// =====================================================
+// HELPERS (DATA SAFETY)
+// =====================================================
+
+const normalizeTasks = (data) => {
+    const raw =
+        data?.tasks ||
+        data ||
+        [];
+
+    if (!Array.isArray(raw)) return [];
+
+    return raw.filter((t) => (
+        t &&
+        typeof t === "object" &&
+        t.task_id &&
+        typeof t.title === "string"
+    ));
+};
+
+// =====================================================
+// HOOK
+// =====================================================
 
 function useTasks() {
+
     // =====================================================
     // STATE
     // =====================================================
@@ -18,6 +38,9 @@ function useTasks() {
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
 
+    const [selectedTaskId, setSelectedTaskId] = useState(null);
+    const [focusedTaskId, setFocusedTaskId] = useState(null);
+
     // =====================================================
     // LOAD TASKS
     // =====================================================
@@ -25,25 +48,20 @@ function useTasks() {
     const loadTasks = useCallback(async ({ silent = false } = {}) => {
         try {
             setError(null);
-
             setIsLoading(!silent);
             setIsRefreshing(silent);
 
-            const res = await getTasks();
+            const res = await taskApi.getTasks();
 
-            if (!res?.success) {
-                throw new Error(res?.error?.message || "Failed to load tasks");
+            console.log("🔥 RAW API RESPONSE:", res);
+
+            if (!res.success) {
+                throw new Error(res.error?.message || "Failed to load tasks");
             }
 
-            const raw = res.data;
+            const cleanTasks = normalizeTasks(res.data);
 
-            const normalizedTasks = Array.isArray(raw)
-                ? raw
-                : Array.isArray(raw?.tasks)
-                    ? raw.tasks
-                    : [];
-
-            setTasks(normalizedTasks);
+            setTasks(cleanTasks);
             setLastUpdated(new Date());
 
         } catch (err) {
@@ -62,15 +80,19 @@ function useTasks() {
         try {
             setError(null);
 
-            const res = await createTask(taskData);
+            const res = await taskApi.createTask(taskData);
 
             if (!res.success) {
                 throw new Error(res.error?.message || "Failed to create task");
             }
 
-            setTasks((prev) => [res.data, ...prev]);
-            console.log("TASKS ARRAY:", tasks);
-            return { success: true, data: res.data };
+            const newTask = res.data;
+
+            if (!newTask?.task_id) return;
+
+            setTasks((prev) => [newTask, ...prev]);
+
+            return { success: true, data: newTask };
 
         } catch (err) {
             setError(err.message);
@@ -83,25 +105,25 @@ function useTasks() {
     // =====================================================
 
     const editTask = useCallback(async (taskId, updates) => {
-        const previous = [...tasks];
+        const previous = tasks;
 
         setTasks((prev) =>
             prev.map((t) =>
                 t.task_id === taskId ? { ...t, ...updates } : t
-
             )
         );
 
         try {
-            const res = await updateTask(taskId, updates);
-            console.error("BAD TASK AT INDEX:", index, tasks); console.error("TASKS DEBUG:", tasks); if (!res.success) {
+            const res = await taskApi.updateTask(taskId, updates);
+
+            if (!res.success) {
                 throw new Error(res.error?.message || "Update failed");
             }
 
             return { success: true };
 
         } catch (err) {
-            setTasks(previous); // rollback
+            setTasks(previous);
             setError(err.message);
 
             return { success: false, error: err.message };
@@ -109,18 +131,32 @@ function useTasks() {
     }, [tasks]);
 
     // =====================================================
+    // TOGGLE
+    // =====================================================
+
+    const toggleTask = useCallback(async (taskId) => {
+        const task = tasks.find((t) => t.task_id === taskId);
+
+        if (!task) return;
+
+        return editTask(taskId, {
+            is_complete: !task.is_complete,
+        });
+    }, [tasks, editTask]);
+
+    // =====================================================
     // DELETE (OPTIMISTIC)
     // =====================================================
 
     const removeTask = useCallback(async (taskId) => {
-        const previous = [...tasks];
+        const previous = tasks;
 
         setTasks((prev) =>
             prev.filter((t) => t.task_id !== taskId)
         );
 
         try {
-            const res = await deleteTask(taskId);
+            const res = await taskApi.deleteTask(taskId);
 
             if (!res.success) {
                 throw new Error(res.error?.message || "Delete failed");
@@ -129,12 +165,26 @@ function useTasks() {
             return { success: true };
 
         } catch (err) {
-            setTasks(previous); // rollback
+            setTasks(previous);
             setError(err.message);
 
             return { success: false, error: err.message };
         }
     }, [tasks]);
+
+    // =====================================================
+    // SELECTION
+    // =====================================================
+
+    const onSelect = useCallback((id) => {
+        setSelectedTaskId((prev) => prev === id ? null : id);
+        setFocusedTaskId(id);
+    }, []);
+
+    const clearSelection = useCallback(() => {
+        setSelectedTaskId(null);
+        setFocusedTaskId(null);
+    }, []);
 
     // =====================================================
     // DERIVED STATE
@@ -164,25 +214,38 @@ function useTasks() {
     }, [loadTasks]);
 
     // =====================================================
-    // API
+    // SAFE EXPORT (FINAL PROTECTION LAYER)
+    // =====================================================
+
+    const safeTasks = Array.isArray(tasks) ? tasks : [];
+
+    // =====================================================
+    // PUBLIC API
     // =====================================================
 
     return {
-        tasks,
+        tasks: safeTasks,
 
         isLoading,
         isRefreshing,
         error,
         lastUpdated,
 
+        selectedTaskId,
+        focusedTaskId,
+        onSelect,
+        clearSelection,
+
+        addTask,
+        editTask,
+        toggleTask,
+        removeTask,
+
         completedTasks,
         activeTasks,
         highPriorityTasks,
 
         loadTasks,
-        addTask,
-        editTask,
-        removeTask,
     };
 }
 
