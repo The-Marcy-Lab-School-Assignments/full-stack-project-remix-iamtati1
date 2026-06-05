@@ -6,7 +6,7 @@ import {
     Sparkles,
     Clock3,
 } from "lucide-react";
-
+import useTasks from "../hooks/useTasks";
 import { motion } from "framer-motion";
 
 function Analytics() {
@@ -39,6 +39,7 @@ function Analytics() {
 
             {/* ================= HERO ================= */}
             <div className="flow-card p-8 md:p-10 relative overflow-hidden">
+                const {tasks} = useTasks();
 
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-violet-500/5" />
 

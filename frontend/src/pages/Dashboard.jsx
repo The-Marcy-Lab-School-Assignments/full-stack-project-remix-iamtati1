@@ -11,18 +11,12 @@ import {
 function Dashboard() {
     const navigate = useNavigate();
 
-    // =========================
-    // STYLE MAPS
-    // =========================
     const colorMap = {
         cyan: "bg-cyan-400/10 border-cyan-400/10",
         violet: "bg-violet-400/10 border-violet-400/10",
         pink: "bg-pink-400/10 border-pink-400/10",
     };
 
-    // =========================
-    // FEATURES DATA
-    // =========================
     const features = [
         {
             icon: CheckCircle2,
@@ -44,14 +38,11 @@ function Dashboard() {
         },
     ];
 
-    // =========================
-    // UI
-    // =========================
     return (
         <motion.section
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.6 }}
             className="space-y-16 max-w-[1400px] mx-auto"
         >
             {/* HERO */}
@@ -70,8 +61,7 @@ function Dashboard() {
                     </h1>
 
                     <p className="text-lg text-white/60 leading-relaxed">
-                        A structured productivity system blending tasks,
-                        intelligence, and calm visual rhythm into one unified workspace.
+                        A structured productivity system blending tasks, intelligence, and calm visual rhythm into one unified workspace.
                     </p>
 
                     <div className="flex flex-wrap gap-4 pt-4">
@@ -104,15 +94,7 @@ function Dashboard() {
                             whileHover={{ y: -6 }}
                             className="flow-card p-7 space-y-5 cursor-pointer"
                         >
-                            <div
-                                className={`
-                                    w-14 h-14
-                                    rounded-2xl
-                                    flex items-center justify-center
-                                    border
-                                    ${colorMap[item.color]}
-                                `}
-                            >
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${colorMap[item.color]}`}>
                                 <Icon className="text-white/80" size={24} />
                             </div>
 
@@ -134,7 +116,6 @@ function Dashboard() {
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-violet-500/5" />
 
                 <div className="relative z-10 grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
-                    {/* LEFT */}
                     <div className="space-y-6 max-w-xl">
                         <div className="text-sm text-white/60 px-4 py-2 border border-white/10 rounded-full bg-white/5 w-fit">
                             Premium Workflow Experience
@@ -145,12 +126,10 @@ function Dashboard() {
                         </h2>
 
                         <p className="text-white/60 leading-relaxed">
-                            Flow organizes your attention into structured systems,
-                            reducing friction and increasing execution speed.
+                            Flow organizes your attention into structured systems, reducing friction and increasing execution speed.
                         </p>
                     </div>
 
-                    {/* RIGHT */}
                     <div className="relative min-h-[320px] rounded-[2rem] border border-white/10 bg-white/[0.03]">
                         <motion.div
                             animate={{ y: [0, -10, 0] }}

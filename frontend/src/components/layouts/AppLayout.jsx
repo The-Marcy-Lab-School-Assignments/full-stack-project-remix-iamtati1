@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar";
 import { Sparkles, LayoutGrid } from "lucide-react";
 
 function AppLayout() {
-    const { currentUser } = useAuth();
+    const { currentUser, logout } = useAuth();
 
     return (
         <div className="relative min-h-screen bg-[#050816] text-white overflow-hidden">
@@ -45,7 +45,7 @@ function AppLayout() {
                             </div>
                         </div>
 
-                        {/* USER */}
+                        {/* USER WRAPPER (FIXED) */}
                         <div className="flex items-center gap-3">
 
                             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
@@ -53,13 +53,16 @@ function AppLayout() {
                                 Workflow Active
                             </div>
 
-                            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+                            {/* USER CARD */}
+                            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-2">
 
+                                {/* Avatar */}
                                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center text-black font-semibold">
                                     {currentUser?.username?.[0]?.toUpperCase() || "G"}
                                 </div>
 
-                                <div className="hidden sm:block">
+                                {/* Info */}
+                                <div className="hidden sm:block leading-tight">
                                     <p className="text-sm font-medium">
                                         {currentUser?.username || "Guest"}
                                     </p>
@@ -68,11 +71,28 @@ function AppLayout() {
                                     </p>
                                 </div>
 
+                                {/* LOGOUT */}
+                                <button
+                                    onClick={logout}
+                                    className="
+                                        text-xs font-medium
+                                        px-3 py-1.5
+                                        rounded-lg
+                                        bg-red-500/10
+                                        text-red-300
+                                        border border-red-500/20
+                                        hover:bg-red-500/20
+                                        hover:text-red-200
+                                        transition
+                                    "
+                                >
+                                    Logout
+                                </button>
+
                             </div>
-
                         </div>
-
                     </div>
+
                 </header>
 
                 {/* MAIN */}
