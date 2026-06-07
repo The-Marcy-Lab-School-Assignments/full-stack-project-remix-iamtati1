@@ -1,16 +1,22 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { taskApi } from "../api/tasks";
 
+// =====================================================
+// HELPERS
+// =====================================================
 const normalizeTasks = (data) => {
     const raw = data?.tasks || data || [];
     if (!Array.isArray(raw)) return [];
     return raw.filter((t) => t && t.task_id);
 };
 
+// =====================================================
+// HOOK
+// =====================================================
 function useTasks() {
 
     // =====================================================
-    // CORE STATE ENGINE
+    // CORE STATE
     // =====================================================
     const [tasks, setTasks] = useState([]);
     const [status, setStatus] = useState("idle");
@@ -18,10 +24,18 @@ function useTasks() {
     const [lastUpdated, setLastUpdated] = useState(null);
 
     // =====================================================
-    // UI ACTION ENGINE (UPGRADED)
+    // SELECTION STATE
+    // =====================================================
+    const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+    const onSelect = useCallback((id) => {
+        setSelectedTaskId((prev) => (prev === id ? null : id));
+    }, []);
+
+    // =====================================================
+    // UI ACTION STATE
     // =====================================================
     const [activeActions, setActiveActions] = useState({});
-    // { [taskId]: "toggle" | "delete" | "update" }
 
     const setAction = (id, action) => {
         setActiveActions((prev) => ({ ...prev, [id]: action }));
@@ -36,7 +50,7 @@ function useTasks() {
     };
 
     // =====================================================
-    // LOAD
+    // LOAD TASKS
     // =====================================================
     const loadTasks = useCallback(async ({ silent = false } = {}) => {
         try {
@@ -57,7 +71,7 @@ function useTasks() {
     }, []);
 
     // =====================================================
-    // ADD (OPTIMISTIC)
+    // ADD TASK (OPTIMISTIC)
     // =====================================================
     const addTask = useCallback(async (taskData) => {
         setStatus("mutating");
@@ -87,11 +101,7 @@ function useTasks() {
 
         } catch (err) {
             setError(err.message);
-
-            setTasks((prev) =>
-                prev.filter((t) => !t._optimistic)
-            );
-
+            setTasks((prev) => prev.filter((t) => !t._optimistic));
             return { success: false };
 
         } finally {
@@ -100,14 +110,14 @@ function useTasks() {
     }, []);
 
     // =====================================================
-    // TOGGLE (ENGINE SAFE)
+    // TOGGLE TASK
     // =====================================================
     const toggleTask = useCallback(async (taskId) => {
 
         setAction(taskId, "toggle");
 
-        // snapshot safe
         let snapshot;
+
         setTasks((prev) => {
             snapshot = prev;
             return prev.map((t) =>
@@ -128,15 +138,14 @@ function useTasks() {
 
         } catch (err) {
             setError(err.message);
-            setTasks(snapshot); // rollback
+            setTasks(snapshot);
         } finally {
             clearAction(taskId);
         }
-
     }, []);
 
     // =====================================================
-    // UPDATE (REAL CRUD NOW)
+    // EDIT TASK
     // =====================================================
     const editTask = useCallback(async (taskId, updates) => {
 
@@ -161,11 +170,10 @@ function useTasks() {
         } finally {
             clearAction(taskId);
         }
-
     }, []);
 
     // =====================================================
-    // DELETE
+    // DELETE TASK
     // =====================================================
     const removeTask = useCallback(async (taskId) => {
 
@@ -188,20 +196,22 @@ function useTasks() {
         } finally {
             clearAction(taskId);
         }
-
     }, []);
 
     // =====================================================
-    // SELECTION ENGINE
+    // REORDER (DRAG & DROP READY)
     // =====================================================
-    const [selectedTaskId, setSelectedTaskId] = useState(null);
-
-    const onSelect = useCallback((id) => {
-        setSelectedTaskId((prev) => (prev === id ? null : id));
+    const reorderTasks = useCallback((fromIndex, toIndex) => {
+        setTasks((prev) => {
+            const copy = [...prev];
+            const [moved] = copy.splice(fromIndex, 1);
+            copy.splice(toIndex, 0, moved);
+            return copy;
+        });
     }, []);
 
     // =====================================================
-    // DERIVED ENGINE STATE
+    // DERIVED STATE
     // =====================================================
     const completedTasks = useMemo(
         () => tasks.filter(t => t.is_complete),
@@ -227,7 +237,7 @@ function useTasks() {
     }, [loadTasks]);
 
     // =====================================================
-    // PUBLIC API
+    // RETURN API
     // =====================================================
     return {
         tasks,
@@ -244,11 +254,13 @@ function useTasks() {
         toggleTask,
         removeTask,
 
+        reorderTasks,
+
         completedTasks,
         activeTasks,
         stats,
 
-        activeActions, // ⭐ FULL UI ENGINE SIGNAL
+        activeActions,
     };
 }
 

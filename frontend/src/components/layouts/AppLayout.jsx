@@ -2,50 +2,74 @@ import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { motion } from "framer-motion";
+import useUISettings from "../../hooks/useUISettings";
+
+// =====================================================
+// ROUTE CONFIG
+// =====================================================
+const PAGE_TITLES = {
+    "/dashboard": "Dashboard",
+    "/tasks": "Tasks",
+    "/analytics": "Analytics",
+};
 
 function AppLayout() {
     const location = useLocation();
 
+    const ui = useUISettings() || {};
+
+    const theme = ui.theme || "midnight";
+    const quickSettings = ui.quickSettings || { "Focus Mode": false };
+    console.log("Current App Theme:", theme);
     // =====================================================
-    // PAGE CONTEXT (for smarter UI later)
+    // PAGE TITLE RESOLUTION
     // =====================================================
     const getPageTitle = () => {
-        if (location.pathname.includes("tasks")) return "Tasks";
-        if (location.pathname.includes("analytics")) return "Analytics";
-        if (location.pathname.includes("dashboard")) return "Dashboard";
+        const path = location.pathname;
+
+        if (PAGE_TITLES[path]) return PAGE_TITLES[path];
+
+        if (path.includes("tasks")) return "Tasks";
+        if (path.includes("analytics")) return "Analytics";
+        if (path.includes("dashboard")) return "Dashboard";
+
         return "Workspace";
     };
 
-    return (
-        <div className="relative min-h-screen bg-[#050816] text-white overflow-hidden">
+    // =====================================================
+    // THEME CLASS SYSTEM
+    // =====================================================
+    const themeClass = "bg-[#050816]";
 
-            {/* =====================================================
-                BACKGROUND LAYER (noise + grid + glow system)
-            ===================================================== */}
+    return (
+        <div className={`relative min-h-screen text-white overflow-hidden transition-colors duration-300 ${themeClass}`}>
+
+            {/* BACKGROUND SYSTEM */}
             <div className="fixed inset-0 pointer-events-none">
                 <div className="app-grid" />
                 <div className="app-noise" />
 
-                <div className="absolute top-[-18rem] right-[-12rem] h-[40rem] w-[40rem] rounded-full bg-cyan-400/10 blur-[160px]" />
-                <div className="absolute bottom-[-18rem] left-[-12rem] h-[44rem] w-[44rem] rounded-full bg-violet-500/10 blur-[180px]" />
+                <div className="absolute top-[-18rem] right-[-12rem] h-[40rem] w-[40rem] rounded-full bg-blue-500/10 blur-[160px]" />
+                <div className="absolute bottom-[-18rem] left-[-12rem] h-[44rem] w-[44rem] rounded-full bg-indigo-500/10 blur-[180px]" />
             </div>
 
-            {/* =====================================================
-                APP SHELL
-            ===================================================== */}
-            <div className="relative z-10 flex min-h-screen">
+            {/* APP SHELL */}
+            <div className="relative min-h-screen text-white overflow-hidden flex">
 
-                {/* SIDEBAR (sticky brain / navigation) */}
-                <aside className="hidden lg:flex w-[280px] border-r border-white/10 bg-black/20 backdrop-blur-xl">
+                {/* SIDEBAR */}
+                <aside
+                    className={`hidden lg:flex w-[280px] border-r border-white/10 bg-black/20 backdrop-blur-xl transition-opacity
+                        ${quickSettings["Focus Mode"] ? "opacity-60" : "opacity-100"}`}
+                >
                     <div className="sticky top-0 h-screen w-full">
                         <Sidebar />
                     </div>
                 </aside>
 
-                {/* MAIN AREA */}
+                {/* MAIN */}
                 <div className="flex-1 flex flex-col min-w-0">
 
-                    {/* TOPBAR (context-aware header) */}
+                    {/* TOPBAR */}
                     <div className="sticky top-0 z-20 border-b border-white/10 bg-black/20 backdrop-blur-xl">
                         <Topbar title={getPageTitle()} />
                     </div>
@@ -54,7 +78,6 @@ function AppLayout() {
                     <main className="flex-1 overflow-y-auto px-6 py-8">
                         <div className="mx-auto w-full max-w-[1400px]">
 
-                            {/* PAGE WRAPPER (Notion-style breathing space) */}
                             <motion.div
                                 key={location.pathname}
                                 initial={{ opacity: 0, y: 8 }}

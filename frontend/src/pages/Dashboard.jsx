@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import useUISettings from "../hooks/useUISettings";
+
 import {
     Sparkles,
     CheckCircle2,
@@ -11,101 +13,173 @@ import {
     Target,
 } from "lucide-react";
 
+import Card from "../components/ui/Card";
 import useTasks from "../hooks/useTasks";
-
-function Card({ children, className = "" }) {
-    return (
-        <div
-            className={`rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl transition-all ${className}`}
-        >
-            {children}
-        </div>
-    );
-}
 
 function Dashboard() {
     const navigate = useNavigate();
     const { tasks = [] } = useTasks();
 
+    const { aiSettings, quickSettings } = useUISettings();
+
+    const focusMode = quickSettings?.["Focus Mode"];
+    const aiEnabled = aiSettings?.["Productivity insights"];
+
+    // =====================================================
+    // TASK METRICS
+    // =====================================================
+
     const total = tasks.length;
-    const completed = tasks.filter((t) => t.is_complete).length;
+
+    const completed = tasks.filter(
+        (task) => Boolean(task.is_complete)
+    ).length;
+
     const active = total - completed;
 
-    const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+    const progress =
+        total === 0
+            ? 0
+            : Math.round((completed / total) * 100);
 
     const upcoming = tasks
-        .filter((t) => t.due_date && !t.is_complete)
+        .filter(
+            (task) =>
+                task.due_date &&
+                !task.is_complete
+        )
+        .sort(
+            (a, b) =>
+                new Date(a.due_date) -
+                new Date(b.due_date)
+        )
         .slice(0, 3);
 
-    const streak = 4;
+    const overdue = tasks.filter(
+        (task) =>
+            task.due_date &&
+            !task.is_complete &&
+            new Date(task.due_date) < new Date()
+    );
+
+    const streak = completed > 0 ? completed : 0;
+
+    const priorityTask = upcoming[0] || null;
+
+    // =====================================================
+    // INSIGHTS
+    // =====================================================
 
     const momentum =
-        progress >= 70
-            ? "You are in strong execution mode."
+        progress >= 75
+            ? "You are operating with strong momentum."
             : progress >= 40
-                ? "You are building steady momentum."
-                : "You are still establishing rhythm.";
+                ? "Steady progress is building."
+                : "Focus on completing a few key tasks first.";
 
-    const focusSuggestion =
+    const aiInsight =
         active > completed
-            ? "Focus on reducing active load before adding more tasks."
-            : "You are balancing completion well.";
+            ? "Your workload is heavier than your completion rate. Consider reducing active tasks before adding new work."
+            : "Your task distribution is healthy and sustainable.";
+
+    // =====================================================
+    // STATS
+    // =====================================================
 
     const stats = [
-        { icon: CheckCircle2, value: completed, label: "Completed" },
-        { icon: Target, value: active, label: "Active" },
-        { icon: Zap, value: `${progress}%`, label: "Progress" },
-        { icon: Clock3, value: streak, label: "Streak" },
+        {
+            icon: CheckCircle2,
+            value: completed,
+            label: "Completed",
+        },
+        {
+            icon: Target,
+            value: active,
+            label: "Active",
+        },
+        {
+            icon: Zap,
+            value: `${progress}%`,
+            label: "Progress",
+        },
+        {
+            icon: Clock3,
+            value: streak,
+            label: "Momentum",
+        },
     ];
 
     return (
         <motion.section
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-10"
+            className="space-y-8"
         >
-            {/* HERO */}
+            {/* =====================================================
+                HERO
+            ===================================================== */}
+
             <Card className="relative overflow-hidden">
+                <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-blue-500/10 blur-[100px]" />
 
-                <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl" />
-
-                <div className="relative space-y-5 max-w-3xl">
-
-                    <div className="flex items-center gap-2 text-cyan-300">
+                <div className="relative max-w-3xl space-y-5">
+                    <div className="flex items-center gap-2 text-blue-300">
                         <Sparkles size={16} />
-                        Command Center
+                        Flow Workspace
                     </div>
 
                     <h1 className="text-4xl font-bold text-white leading-tight">
-                        Your work, structured
-                        <span className="block text-white/60">
-                            around clarity and momentum.
-                        </span>
+                        {focusMode
+                            ? "Focus Session Active"
+                            : "Welcome back"}
                     </h1>
 
-                    <p className="text-white/55">
+                    <p className="text-white/60 text-lg">
+                        {active} active tasks •{" "}
+                        {completed} completed
+                    </p>
+
+                    <p className="text-white/50">
                         {momentum}
                     </p>
 
-                    <button
-                        onClick={() => navigate("/tasks")}
-                        className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-white transition hover:bg-cyan-400/15"
-                    >
-                        Open Tasks
-                        <ArrowRight size={16} />
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                        <button
+                            onClick={() =>
+                                navigate("/tasks")
+                            }
+                            className="inline-flex items-center gap-2 rounded-2xl border border-blue-400/20 bg-blue-500/10 px-5 py-3 text-white transition hover:bg-blue-500/20"
+                        >
+                            Open Tasks
+                            <ArrowRight size={16} />
+                        </button>
 
+                        <button
+                            onClick={() =>
+                                navigate("/analytics")
+                            }
+                            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-white/80 transition hover:bg-white/[0.06]"
+                        >
+                            Analytics
+                        </button>
+                    </div>
                 </div>
             </Card>
 
-            {/* STATS */}
+            {/* =====================================================
+                STATS
+            ===================================================== */}
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat) => {
                     const Icon = stat.icon;
 
                     return (
                         <Card key={stat.label}>
-                            <Icon size={18} className="text-cyan-300" />
+                            <Icon
+                                size={18}
+                                className="text-blue-300"
+                            />
 
                             <h3 className="mt-4 text-3xl font-bold text-white">
                                 {stat.value}
@@ -119,73 +193,136 @@ function Dashboard() {
                 })}
             </div>
 
-            {/* INSIGHT + UPCOMING */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* =====================================================
+                FOCUS + AI
+            ===================================================== */}
 
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <Card>
-                    <div className="flex items-center gap-2 text-violet-300">
-                        <BrainCircuit size={18} />
-                        System Insight
+                    <div className="flex items-center gap-2 text-indigo-300">
+                        <Target size={18} />
+                        Today's Focus
                     </div>
 
                     <h3 className="mt-4 text-xl font-semibold text-white">
-                        {focusSuggestion}
+                        {priorityTask?.title ||
+                            "No priority task"}
                     </h3>
 
-                    <p className="mt-2 text-white/60 leading-relaxed">
-                        Focus improves when task load is intentional rather than reactive.
+                    <p className="mt-2 text-white/60">
+                        {focusMode
+                            ? "Focus Mode is active. Concentrate on a single meaningful outcome."
+                            : "Choose the next task that moves your work forward."}
                     </p>
                 </Card>
 
-                <Card>
-                    <div className="flex items-center gap-2 text-cyan-300">
-                        <CalendarDays size={18} />
-                        Upcoming
-                    </div>
+                {aiEnabled ? (
+                    <Card>
+                        <div className="flex items-center gap-2 text-blue-300">
+                            <BrainCircuit size={18} />
+                            AI Recommendation
+                        </div>
 
-                    <div className="mt-4 space-y-3">
-                        {upcoming.length === 0 ? (
-                            <p className="text-white/50 text-sm">
-                                No upcoming tasks scheduled.
-                            </p>
-                        ) : (
-                            upcoming.map((task) => (
-                                <div
-                                    key={task.task_id}
-                                    className="rounded-2xl border border-white/10 bg-white/[0.02] p-4"
-                                >
-                                    <p className="text-white/80">
-                                        {task.title}
-                                    </p>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </Card>
+                        <h3 className="mt-4 text-xl font-semibold text-white">
+                            Smart Workflow Insight
+                        </h3>
+
+                        <p className="mt-2 text-white/60">
+                            {aiInsight}
+                        </p>
+                    </Card>
+                ) : (
+                    <Card>
+                        <div className="flex items-center gap-2 text-white/60">
+                            <BrainCircuit size={18} />
+                            AI Disabled
+                        </div>
+
+                        <p className="mt-4 text-white/50">
+                            Enable Productivity Insights
+                            in Settings to receive AI
+                            recommendations.
+                        </p>
+                    </Card>
+                )}
             </div>
 
-            {/* QUICK ACTIONS */}
+            {/* =====================================================
+                UPCOMING TASKS
+            ===================================================== */}
+
+            <Card>
+                <div className="flex items-center gap-2 text-blue-300">
+                    <CalendarDays size={18} />
+                    Upcoming Tasks
+                </div>
+
+                <div className="mt-5 space-y-3">
+                    {upcoming.length === 0 ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-white/50">
+                            No upcoming tasks scheduled.
+                        </div>
+                    ) : (
+                        upcoming.map((task) => (
+                            <div
+                                key={task.task_id}
+                                className="rounded-2xl border border-white/10 bg-white/[0.02] p-4"
+                            >
+                                <p className="font-medium text-white">
+                                    {task.title}
+                                </p>
+
+                                <p className="mt-1 text-sm text-white/50">
+                                    Due{" "}
+                                    {new Date(
+                                        task.due_date
+                                    ).toLocaleDateString()}
+                                </p>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </Card>
+
+            {/* =====================================================
+                SYSTEM STATUS
+            ===================================================== */}
+
             <Card>
                 <h3 className="text-lg font-semibold text-white">
-                    Quick Actions
+                    Workspace Status
                 </h3>
 
-                <div className="mt-5 flex flex-wrap gap-3">
+                <div className="mt-5 grid md:grid-cols-3 gap-4">
+                    <div className="rounded-2xl border border-white/10 p-4">
+                        <p className="text-sm text-white/50">
+                            Total Tasks
+                        </p>
 
-                    <button
-                        onClick={() => navigate("/tasks")}
-                        className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-white transition hover:bg-cyan-400/15"
-                    >
-                        View Tasks
-                    </button>
+                        <p className="mt-2 text-2xl font-bold text-white">
+                            {total}
+                        </p>
+                    </div>
 
-                    <button
-                        onClick={() => navigate("/analytics")}
-                        className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-white/80 transition hover:bg-white/[0.05]"
-                    >
-                        View Analytics
-                    </button>
+                    <div className="rounded-2xl border border-white/10 p-4">
+                        <p className="text-sm text-white/50">
+                            Overdue
+                        </p>
 
+                        <p className="mt-2 text-2xl font-bold text-white">
+                            {overdue.length}
+                        </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 p-4">
+                        <p className="text-sm text-white/50">
+                            Completion Rate
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-white">
+                            {progress}%
+                        </p>
+                    </div>
                 </div>
             </Card>
         </motion.section>

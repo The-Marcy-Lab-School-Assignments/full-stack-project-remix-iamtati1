@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import Card from "../components/ui/Card";
+import useUISettings from "../hooks/useUISettings";
+
 import {
     Bell,
     Shield,
@@ -18,20 +20,30 @@ import useTasks from "../hooks/useTasks";
 import { useAuth } from "../hooks/useAuth";
 
 // =====================================================
-// SHARED CARD SYSTEM (same pattern as Dashboard/Tasks)
+// DATA CONFIG
 // =====================================================
-function Card({ children, className = "" }) {
-    return (
-        <div className={`rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl ${className}`}>
-            {children}
-        </div>
-    );
-}
 
 const appearanceOptions = [
-    { name: "Glass", preview: "from-cyan-500/30 via-blue-500/20 to-violet-500/30" },
-    { name: "Midnight", preview: "from-slate-900 via-slate-800 to-slate-700" },
-    { name: "Aurora", preview: "from-cyan-400/30 via-violet-500/20 to-pink-500/30" },
+    {
+        id: "midnight",
+        name: "Midnight",
+        preview: "from-cyan-500/30 via-blue-500/20 to-violet-500/30",
+    },
+    {
+        id: "violet",
+        name: "Violet",
+        preview: "from-violet-500/30 via-purple-500/20 to-pink-500/30",
+    },
+    {
+        id: "emerald",
+        name: "Emerald",
+        preview: "from-emerald-500/30 via-teal-500/20 to-cyan-500/30",
+    },
+    {
+        id: "sunset",
+        name: "Sunset",
+        preview: "from-orange-500/30 via-rose-500/20 to-pink-500/30",
+    },
 ];
 
 const aiSettingsList = [
@@ -47,78 +59,36 @@ const quickSettingsList = [
     { icon: Monitor, label: "Desktop Layout" },
 ];
 
+// =====================================================
+// COMPONENT
+// =====================================================
+
 function Settings() {
     const { user, signOut } = useAuth();
     const { tasks = [] } = useTasks();
 
-    const [theme, setTheme] = useState(
-        () => localStorage.getItem("theme") || "Midnight"
-    );
+    const {
+        theme,
+        setTheme,
+        aiSettings,
+        toggleAI,
+        quickSettings,
+        toggleQuick,
+    } = useUISettings();
 
-    const [aiSettings, setAiSettings] = useState(() => {
-        const saved = localStorage.getItem("aiSettings");
-        return saved
-            ? JSON.parse(saved)
-            : Object.fromEntries(aiSettingsList.map((s) => [s, true]));
-    });
-
-    const [quickSettings, setQuickSettings] = useState(() => {
-        const saved = localStorage.getItem("quickSettings");
-        return saved
-            ? JSON.parse(saved)
-            : {
-                Notifications: true,
-                "Focus Mode": false,
-                "Desktop Layout": true,
-            };
-    });
-
-    useEffect(() => {
-        localStorage.setItem("theme", theme);
-        document.documentElement.setAttribute("data-theme", theme);
-    }, [theme]);
-
-    useEffect(() => {
-        localStorage.setItem("aiSettings", JSON.stringify(aiSettings));
-    }, [aiSettings]);
-
-    useEffect(() => {
-        localStorage.setItem("quickSettings", JSON.stringify(quickSettings));
-
-        if (quickSettings["Focus Mode"]) {
-            document.body.classList.add("focus-mode");
-        } else {
-            document.body.classList.remove("focus-mode");
-        }
-    }, [quickSettings]);
-
-    const toggleAI = (setting) => {
-        setAiSettings((prev) => ({
-            ...prev,
-            [setting]: !prev[setting],
-        }));
-    };
-
-    const toggleQuick = (setting) => {
-        setQuickSettings((prev) => ({
-            ...prev,
-            [setting]: !prev[setting],
-        }));
-    };
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
         <section className="space-y-10">
 
-            {/* =====================================================
-                HEADER (SYSTEM STANDARD)
-            ===================================================== */}
+            {/* HEADER */}
             <Card className="relative overflow-hidden">
-
                 <div className="absolute -top-24 -right-24 h-72 w-72 bg-cyan-400/10 blur-[120px]" />
                 <div className="absolute -bottom-24 -left-24 h-72 w-72 bg-violet-500/10 blur-[120px]" />
 
                 <div className="relative space-y-3">
-
                     <div className="flex items-center gap-2 text-cyan-300">
                         <Sparkles size={16} />
                         Workspace Settings
@@ -136,13 +106,10 @@ function Settings() {
                         {" • "}
                         {tasks.length} tasks in system
                     </p>
-
                 </div>
             </Card>
 
-            {/* =====================================================
-                GRID
-            ===================================================== */}
+            {/* GRID */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
                 {/* LEFT */}
@@ -162,34 +129,35 @@ function Settings() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {appearanceOptions.map((option) => (
                                 <button
-                                    key={option.name}
-                                    onClick={() => setTheme(option.name)}
-                                    className={`p-4 rounded-2xl border transition text-left
-                                        ${theme === option.name
+                                    key={option.id}
+                                    onClick={() => setTheme(option.id)}
+                                    className={`p-4 rounded-2xl border text-left transition
+                                        ${theme === option.id
                                             ? "border-cyan-400/40 bg-cyan-400/10"
                                             : "border-white/10 bg-white/[0.04] hover:bg-white/[0.06]"
                                         }`}
                                 >
-                                    <div className={`h-20 rounded-xl mb-3 bg-gradient-to-br ${option.preview}`} />
+                                    <div
+                                        className={`h-20 rounded-xl mb-3 bg-gradient-to-br ${option.preview}`}
+                                    />
 
-                                    <div className="flex justify-between">
+                                    <div className="flex justify-between items-center">
                                         <span className="text-white font-medium">
                                             {option.name}
                                         </span>
 
-                                        {theme === option.name && (
-                                            <span className="text-xs text-cyan-300">
+                                        {theme === option.id && (
+                                            <div className="flex items-center gap-2 text-cyan-300 text-xs">
+                                                <Check size={12} />
                                                 Active
-                                            </span>
+                                            </div>
                                         )}
                                     </div>
                                 </button>
                             ))}
-
                         </div>
                     </Card>
 
@@ -213,21 +181,17 @@ function Settings() {
                                     key={setting}
                                     className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/[0.04]"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <Check size={16} className="text-cyan-300" />
-                                        <span className="text-white/80 text-sm">
-                                            {setting}
-                                        </span>
-                                    </div>
+                                    <span className="text-white/80 text-sm">
+                                        {setting}
+                                    </span>
 
                                     <button onClick={() => toggleAI(setting)}>
-                                        <Toggle enabled={aiSettings[setting]} />
+                                        <Toggle enabled={aiSettings?.[setting]} />
                                     </button>
                                 </div>
                             ))}
                         </div>
                     </Card>
-
                 </div>
 
                 {/* RIGHT */}
@@ -235,7 +199,6 @@ function Settings() {
 
                     {/* PROFILE */}
                     <Card className="text-center">
-
                         <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-cyan-400/20 to-violet-500/20 flex items-center justify-center text-2xl font-bold mb-4">
                             {user?.username?.[0]?.toUpperCase() || "G"}
                         </div>
@@ -249,7 +212,6 @@ function Settings() {
                         </p>
 
                         <div className="mt-6 space-y-3">
-
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 text-white/70">
                                 <User size={16} />
                                 Edit Profile
@@ -267,13 +229,11 @@ function Settings() {
                                 <LogOut size={16} />
                                 Log Out
                             </button>
-
                         </div>
                     </Card>
 
                     {/* QUICK SETTINGS */}
                     <Card>
-
                         <div className="flex items-center gap-2 mb-4">
                             <Zap size={18} className="text-cyan-300" />
                             <h3 className="text-lg font-semibold text-white">
@@ -295,14 +255,12 @@ function Settings() {
                                     </div>
 
                                     <button onClick={() => toggleQuick(label)}>
-                                        <Toggle enabled={quickSettings[label]} />
+                                        <Toggle enabled={quickSettings?.[label]} />
                                     </button>
                                 </div>
                             ))}
                         </div>
-
                     </Card>
-
                 </div>
             </div>
         </section>
@@ -310,12 +268,15 @@ function Settings() {
 }
 
 // =====================================================
-// TOGGLE (kept but aligned visually)
+// TOGGLE COMPONENT
 // =====================================================
+
 function Toggle({ enabled }) {
     return (
-        <div className={`w-11 h-6 rounded-full px-1 flex items-center transition
-            ${enabled ? "bg-cyan-400/40" : "bg-white/10"}`}>
+        <div
+            className={`w-11 h-6 rounded-full px-1 flex items-center transition ${enabled ? "bg-cyan-400/40" : "bg-white/10"
+                }`}
+        >
             <motion.div
                 animate={{ x: enabled ? 20 : 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
