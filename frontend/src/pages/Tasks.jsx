@@ -34,6 +34,7 @@ function Tasks() {
         editTask,
         toggleTask,
         removeTask,
+        reorderTasks,
     } = useTasks();
 
     const handleCreate = async (data) => addTask(data);
@@ -167,6 +168,7 @@ function Tasks() {
                         onToggle={toggleTask}
                         onSelect={onSelect}
                         onEdit={handleEdit}
+                        reorderTasks={reorderTasks}
                     />
                 </Card>
 

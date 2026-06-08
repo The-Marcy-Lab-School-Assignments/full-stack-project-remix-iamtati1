@@ -85,6 +85,8 @@ function TaskList({
         // prevent cross-section drag (for now)
         if (fromType !== type) return;
 
+        console.log("reorderTasks:", reorderTasks);
+        console.log("type:", typeof reorderTasks);
         reorderTasks(fromIndex, toIndex);
     };
 
