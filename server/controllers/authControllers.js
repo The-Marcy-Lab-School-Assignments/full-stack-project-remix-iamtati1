@@ -21,7 +21,7 @@ module.exports.register = async (req, res, next) => {
     const user = await userModel.create(username, password);
 
     // ✅ CONSISTENT SESSION KEY
-    req.session.user_id = user.user_id;
+    req.session.user_id = user.id;
 
     return res.status(201).json({
       user
@@ -43,7 +43,8 @@ module.exports.login = async (req, res, next) => {
     }
 
     const user = await userModel.validatePassword(username, password);
-
+    console.log("LOGIN INPUT:", username, password);
+    console.log("DB USER:", user);
     if (!user) {
       return res.status(401).json({
         error: 'Invalid credentials.'
