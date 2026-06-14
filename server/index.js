@@ -77,7 +77,7 @@ app.delete('/api/auth/logout', authControllers.logout);
 // ====================================
 // Task Routes
 // ====================================
-app.use("/api/tasks", taskRoutes);
+// app.use("/api/tasks", taskRoutes);
 
 // ====================================
 // DB Check (debug route)
