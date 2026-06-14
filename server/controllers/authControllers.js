@@ -21,7 +21,7 @@ module.exports.register = async (req, res, next) => {
     const user = await userModel.create(username, password);
 
     // ✅ CONSISTENT SESSION KEY
-    req.session.user_id = user.id;
+    req.session.user_id = user.user_id;
 
     return res.status(201).json({
       user
@@ -34,13 +34,29 @@ module.exports.register = async (req, res, next) => {
 
 
 
-module.exports.getMe = async (req, res) => {
-  return res.json({
-    user: {
-      user_id: 1,
-      username: "demo",
-    },
-  });
+module.exports.getMe = async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+
+    if (!user_id) {
+      return res.status(401).json({
+        error: "Not authenticated"
+      });
+    }
+
+    const user = await userModel.find(user_id);
+
+    if (!user) {
+      return res.status(401).json({
+        error: "User not found"
+      });
+    }
+
+    return res.json({ user });
+
+  } catch (err) {
+    next(err);
+  }
 };
 
 
@@ -66,13 +82,14 @@ module.exports.login = async (req, res, next) => {
 
     const user = await userModel.validatePassword(username, password);
 
+
     if (!user) {
       return res.status(401).json({
         error: "Invalid username or password"
       });
     }
 
-    req.session.user_id = user.id;
+    req.session.user_id = user.user_id;
 
     return res.json({ user });
 
