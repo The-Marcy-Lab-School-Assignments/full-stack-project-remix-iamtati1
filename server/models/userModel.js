@@ -12,9 +12,12 @@ module.exports.create = async (username, password) => {
 };
 
 // Returns { user_id, username } or null
-module.exports.find = async (id) => {
-  const query = 'SELECT user_id, username FROM users WHERE id = $1';
-  const { rows } = await pool.query(query, [id]);
+module.exports.find = async (user_id) => {
+  const query =
+    'SELECT user_id, username FROM users WHERE user_id = $1';
+
+  const { rows } = await pool.query(query, [user_id]);
+
   return rows[0] || null;
 };
 
