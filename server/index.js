@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+
 const express = require('express');
 const cookieSession = require('cookie-session');
 const pool = require("./db/pool");
@@ -14,6 +15,9 @@ const authControllers = require('./controllers/authControllers')
 const taskRoutes = require("./routes/taskRoutes");
 const cors = require('cors');
 
+console.log("logRoutes:", typeof logRoutes);
+console.log("taskRoutes:", typeof taskRoutes);
+console.log("authControllers:", Object.keys(authControllers));
 
 const PORT = process.env.PORT || 8080;
 
