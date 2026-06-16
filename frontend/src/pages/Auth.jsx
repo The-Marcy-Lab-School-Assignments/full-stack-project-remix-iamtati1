@@ -27,7 +27,7 @@ function Card({ children, className = "" }) {
 
 function Auth() {
     const navigate = useNavigate();
-    const { login, register, error } = useAuth();
+    const { signIn, register, error } = useAuth();
 
     const [isRegistering, setIsRegistering] = useState(false);
     const [username, setUsername] = useState("");
@@ -43,7 +43,7 @@ function Auth() {
 
         const success = isRegistering
             ? await register(username, password)
-            : await login(username, password);
+            : await signIn(username, password);
 
         if (success) {
             setStatus("success");

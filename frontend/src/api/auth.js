@@ -1,10 +1,11 @@
 // =====================================================
 // CORE FETCH WRAPPER
 // =====================================================
+const API_BASE = "https://taskflow-backend-09ax.onrender.com";
 
 const handleFetch = async (url, options = {}) => {
   try {
-    const response = await fetch(url, {
+    const response = await fetch(`${API_BASE}${url}`, {
       credentials: "include",
       ...options,
     });
@@ -49,6 +50,7 @@ export const login = (username, password) =>
   handleFetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ username, password }),
   });
 

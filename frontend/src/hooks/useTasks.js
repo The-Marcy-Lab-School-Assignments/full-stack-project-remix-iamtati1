@@ -24,7 +24,7 @@ function useTasks() {
     const [status, setStatus] = useState("idle");
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
-
+    const [loading, setLoading] = useState(true);
     // =====================================================
     // SELECTION
     // =====================================================

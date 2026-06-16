@@ -71,11 +71,13 @@ export function AuthProvider({ children }) {
     // ================================
     useEffect(() => {
         const checkSession = async () => {
+            console.log("CHECKING SESSION...");
             setIsLoading(true);
 
             try {
                 const { data, error } = await getMe();
-
+                console.log("GETME RESPONSE:", data);
+                console.log("GETME ERROR:", error);
                 if (error) {
                     setCurrentUser(null);
                 } else {
@@ -96,14 +98,14 @@ export function AuthProvider({ children }) {
     return (
         <AuthContext.Provider
             value={{
-                currentUser,
-                isLoading,
+                user: currentUser,
+                loading: isLoading,
                 authReady,
                 error,
 
-                login: handleLogin,
+                signIn: handleLogin,
+                signOut: handleLogout,
                 register: handleRegister,
-                logout: handleLogout,
             }}
         >
             {children}

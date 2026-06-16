@@ -76,20 +76,21 @@ function LoadingScreen() {
 // =====================================================
 // PROTECTED ROUTE (system guard layer)
 // =====================================================
-export default function ProtectedRoute({ children }) {
-    const { currentUser, isLoading } = useAuth();
 
+export default function ProtectedRoute({ children }) {
+    const { user, loading } = useAuth();
+    console.log(useAuth());
     // =====================================================
     // AUTH RESOLUTION (single source of truth)
     // =====================================================
     const isAuthenticated = Boolean(
-        currentUser?.id || currentUser?.user_id
+        user?.id || user?.user_id
     );
 
     // =====================================================
     // 1. LOADING STATE
     // =====================================================
-    if (isLoading) {
+    if (loading) {
         return <LoadingScreen />;
     }
 

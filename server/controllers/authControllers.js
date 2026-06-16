@@ -32,52 +32,33 @@ module.exports.register = async (req, res, next) => {
   }
 };
 
-module.exports.login = async (req, res, next) => {
-  try {
-    const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({
-        error: 'Username and password are required.'
-      });
-    }
-
-    const user = await userModel.validatePassword(username, password);
-
-    if (!user) {
-      return res.status(401).json({
-        error: 'Invalid credentials.'
-      });
-    }
-
-    // ✅ FIXED (was userId before — this breaks everything)
-    req.session.user_id = user.user_id;
-
-    return res.json({
-      user
-    });
-
-  } catch (err) {
-    next(err);
-  }
-};
 
 module.exports.getMe = async (req, res, next) => {
   try {
-    if (!req.session.user_id) {
-      return res.json({ user: null });
+    const user_id = req.session.user_id;
+
+    if (!user_id) {
+      return res.status(401).json({
+        error: "Not authenticated"
+      });
     }
 
-    const user = await userModel.find(req.session.user_id);
+    const user = await userModel.find(user_id);
 
-    return res.json({
-      user
-    });
+    if (!user) {
+      return res.status(401).json({
+        error: "User not found"
+      });
+    }
+
+    return res.json({ user });
 
   } catch (err) {
     next(err);
   }
 };
+
 
 module.exports.logout = (req, res) => {
   req.session = null;
@@ -85,4 +66,34 @@ module.exports.logout = (req, res) => {
   return res.json({
     message: 'Logged out'
   });
+};
+
+module.exports.login = async (req, res, next) => {
+  try {
+    console.log("LOGIN BODY:", req.body);
+
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        error: "Username and password are required."
+      });
+    }
+
+    const user = await userModel.validatePassword(username, password);
+
+
+    if (!user) {
+      return res.status(401).json({
+        error: "Invalid username or password"
+      });
+    }
+
+    req.session.user_id = user.user_id;
+
+    return res.json({ user });
+
+  } catch (err) {
+    next(err);
+  }
 };

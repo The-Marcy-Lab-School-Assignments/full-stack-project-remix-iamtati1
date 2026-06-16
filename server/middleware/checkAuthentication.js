@@ -1,13 +1,6 @@
-const checkAuthentication = (req, res, next) => {
-  console.log("SESSION IN AUTH:", req.session);
-
+module.exports = (req, res, next) => {
   if (!req.session || !req.session.user_id) {
-    return res.status(401).send({
-      error: "You must be logged in."
-    });
+    return res.status(401).json({ message: 'Not authenticated' });
   }
-
   next();
 };
-
-module.exports = checkAuthentication;

@@ -2,7 +2,7 @@
 // API BASE
 // =====================================================
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = "https://taskflow-backend-09ax.onrender.com";
 
 // =====================================================
 // CORE FETCH WRAPPER
@@ -59,12 +59,14 @@ export const taskApi = {
   getTasks: () =>
     handleFetch("/api/tasks", {
       method: "GET",
+      credentials: "include",
     }),
 
   // CREATE task
   createTask: (taskData) =>
     handleFetch("/api/tasks", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(taskData),
     }),
@@ -73,6 +75,7 @@ export const taskApi = {
   updateTask: (taskId, updates) =>
     handleFetch(`/api/tasks/${taskId}`, {
       method: "PATCH",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     }),
@@ -81,5 +84,6 @@ export const taskApi = {
   deleteTask: (taskId) =>
     handleFetch(`/api/tasks/${taskId}`, {
       method: "DELETE",
+      credentials: "include",
     }),
 };
