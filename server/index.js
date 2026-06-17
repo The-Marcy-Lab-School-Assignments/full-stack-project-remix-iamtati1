@@ -15,11 +15,11 @@ const authControllers = require('./controllers/authControllers')
 const taskRoutes = require("./routes/taskRoutes");
 const cors = require('cors');
 
-console.log("logRoutes:", typeof logRoutes);
-console.log("taskRoutes:", typeof taskRoutes);
-console.log("authControllers:", Object.keys(authControllers));
-
 const PORT = process.env.PORT || 8080;
+
+// Render (and most cloud providers) sit behind a reverse proxy.
+// This lets Express see the real protocol (https) so secure cookies work.
+app.set('trust proxy', 1);
 
 // ====================================
 // Middleware
@@ -47,8 +47,11 @@ app.use(express.json());
 
 app.use(cookieSession({
   name: "session",
-  keys: [process.env.SESSION_SECRET],
+  keys: [process.env.SESSION_SECRET || 'dev-fallback-secret'],
   maxAge: 24 * 60 * 60 * 1000,
+  secure: process.env.NODE_ENV === 'production',
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
 }));
 
 app.use(logRoutes);
@@ -78,22 +81,20 @@ app.get("/db-check", async (req, res) => {
 });
 
 // ====================================
-// Global Error Handler
-// ====================================
-const handleError = (err, req, res, next) => {
-  console.error(err);
-  res.status(500).send({ message: 'Internal Server Error' });
-};
-
-app.use(handleError);
-
-// ====================================
 // Serve frontend (MUST be after API routes)
 // ====================================
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+// ====================================
+// Global Error Handler (MUST be last)
+// ====================================
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal Server Error' });
 });
 
 // ====================================
