@@ -1,7 +1,7 @@
 // =====================================================
 // CORE FETCH WRAPPER
 // =====================================================
-const API_BASE = "https://taskflow-backend-09ax.onrender.com";
+const API_BASE = "";
 
 const handleFetch = async (url, options = {}) => {
   try {

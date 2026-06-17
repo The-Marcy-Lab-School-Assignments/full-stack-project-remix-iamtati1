@@ -55,20 +55,6 @@ app.use(logRoutes);
 
 
 // ====================================
-// Health Check / Root Route
-// ====================================
-
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    message: 'Backend server is running',
-  });
-});
-// In production, serve the built React app from frontend/dist.
-// In development, Vite's dev server handles the frontend on a separate port
-// and proxies /api requests to this server.
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-// ====================================
 // Auth routes
 // ====================================
 
@@ -81,7 +67,7 @@ app.delete('/api/auth/logout', authControllers.logout);
 // ====================================
 // Task Routes
 // ====================================
-// app.use("/api/tasks", taskRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // ====================================
 // DB Check (debug route)
