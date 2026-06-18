@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-
 const express = require('express');
+const migrate = require('./db/migrate');
 const cookieSession = require('cookie-session');
 const pool = require("./db/pool");
 const app = express();
@@ -100,4 +100,6 @@ app.use((err, req, res, next) => {
 // ====================================
 // Listen (ALWAYS LAST)
 // ====================================
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+migrate()
+  .then(() => app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`)))
+  .catch((err) => { console.error('Migration failed:', err); process.exit(1); });
