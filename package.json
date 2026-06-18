@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix server",
+    "build": "npm install --include=dev --prefix frontend && npm run build --prefix frontend && npm install --prefix server",
     "start": "node server/index.js"
   },
   "devDependencies": {
