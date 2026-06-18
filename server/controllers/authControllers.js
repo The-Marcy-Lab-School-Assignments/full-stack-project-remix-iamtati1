@@ -39,20 +39,12 @@ module.exports.getMe = async (req, res, next) => {
     const user_id = req.session.user_id;
 
     if (!user_id) {
-      return res.status(401).json({
-        error: "Not authenticated"
-      });
+      return res.json({ user: null });
     }
 
     const user = await userModel.find(user_id);
 
-    if (!user) {
-      return res.status(401).json({
-        error: "User not found"
-      });
-    }
-
-    return res.json({ user });
+    return res.json({ user: user || null });
 
   } catch (err) {
     next(err);
