@@ -100,6 +100,11 @@ app.use((err, req, res, next) => {
 // ====================================
 // Listen (ALWAYS LAST)
 // ====================================
-migrate()
-  .then(() => app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`)))
-  .catch((err) => { console.error('Migration failed:', err); process.exit(1); });
+app.listen(PORT, async () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+  try {
+    await migrate();
+  } catch (err) {
+    console.error('Migration failed (tables may already exist or DB not ready):', err.message);
+  }
+});
