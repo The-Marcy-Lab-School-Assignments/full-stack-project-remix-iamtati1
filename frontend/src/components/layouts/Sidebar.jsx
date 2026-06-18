@@ -5,7 +5,9 @@ import {
     CheckSquare,
     BarChart3,
     Settings,
+    LogOut,
 } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
 const links = [
     {
@@ -31,6 +33,8 @@ const links = [
 ];
 
 function Sidebar() {
+    const { signOut } = useAuth();
+
     return (
         <div className="flex h-full flex-col px-5 py-6">
 
@@ -138,6 +142,30 @@ function Sidebar() {
                         Personal Productivity
                     </p>
                 </div>
+
+                <button
+                    onClick={signOut}
+                    className="
+                        mt-3
+                        flex
+                        w-full
+                        items-center
+                        gap-3
+                        rounded-2xl
+                        border
+                        border-transparent
+                        px-4
+                        py-3
+                        text-white/50
+                        transition-all
+                        duration-200
+                        hover:bg-white/5
+                        hover:text-white
+                    "
+                >
+                    <LogOut size={18} />
+                    <span className="text-sm font-medium">Logout</span>
+                </button>
 
             </div>
 
