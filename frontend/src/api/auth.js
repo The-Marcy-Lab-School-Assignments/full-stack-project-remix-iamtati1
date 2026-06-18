@@ -58,11 +58,3 @@ export const logout = () =>
   handleFetch("/api/auth/logout", {
     method: "DELETE",
   });
-
-/*
-fetch("http://localhost:8080/api/auth/logout", {
-method: "DELETE",
-credentials: "include",
-});
-
-*/

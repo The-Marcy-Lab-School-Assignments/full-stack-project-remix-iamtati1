@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
     // ================================
     // NORMALIZE USER
     // ================================
-    const normalizeUser = (data) => data?.user ?? data ?? null;
+    const normalizeUser = (data) => data?.user || null;
 
     // ================================
     // LOGIN
