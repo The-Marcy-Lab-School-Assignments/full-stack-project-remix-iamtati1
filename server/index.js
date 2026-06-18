@@ -45,14 +45,22 @@ app.use(cors({
 
 app.use(express.json());
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(cookieSession({
   name: "session",
-  keys: [process.env.SESSION_SECRET || 'dev-fallback-secret'],
+  keys: [process.env.SESSION_SECRET || "dev-fallback-secret"],
   maxAge: 24 * 60 * 60 * 1000,
-  secure: process.env.NODE_ENV === 'production',
+  secure: isProduction,
   httpOnly: true,
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  sameSite: isProduction ? "none" : "lax",
 }));
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  console.log("SESSION:", req.session);
+  next();
+});
 
 app.use(logRoutes);
 
@@ -93,6 +101,7 @@ app.get('*', (req, res) => {
 // Global Error Handler (MUST be last)
 // ====================================
 app.use((err, req, res, next) => {
+  console.log("SESSION:", req.session);
   console.error(err);
   res.status(500).json({ message: 'Internal Server Error' });
 });
