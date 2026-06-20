@@ -173,6 +173,7 @@ app.listen(PORT, async () => {
     await migrate();
     console.log("✅ DB migration complete");
   } catch (err) {
-    console.error("❌ Migration failed:", err.message);
+    console.error("⚠️ Migration skipped or failed:", err.message);
+    // DO NOT crash server on Render
   }
 });
