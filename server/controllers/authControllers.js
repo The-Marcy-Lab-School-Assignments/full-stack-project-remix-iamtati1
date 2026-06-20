@@ -71,6 +71,11 @@ module.exports.login = async (req, res, next) => {
 
     const { username, password } = req.body;
 
+    console.log("🔥 LOGIN HIT");
+    console.log("BODY:", req.body);
+    console.log("USERNAME:", username);
+    console.log("PASSWORD EXISTS:", !!password);
+
     if (!username || !password) {
       return res.status(400).json({
         error: "Username and password are required."
@@ -91,6 +96,13 @@ module.exports.login = async (req, res, next) => {
     return res.json({ user });
 
   } catch (err) {
-    next(err);
+    console.error("LOGIN ERROR FULL:");
+    console.dir(err, { depth: null });
+
+    return res.status(500).json({
+      error: err.message || "Unknown error",
+      name: err.name,
+      code: err.code,
+    });
   }
-};
+}
