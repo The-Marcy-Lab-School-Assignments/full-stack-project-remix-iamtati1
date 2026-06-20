@@ -162,11 +162,16 @@ app.get("*", (req, res) => {
 // GLOBAL ERROR HANDLER (LAST)
 // ====================================
 app.use((err, req, res, next) => {
-  console.error("🔥 ERROR:", err);
-  console.log("SESSION:", req.session);
+  console.error("🔥 ERROR START");
+  console.error(err);
+  console.error(err?.stack);
+  console.error("🔥 ERROR END");
 
   res.status(500).json({
-    message: "Internal Server Error",
+    message: err.message,
+    stack: process.env.NODE_ENV !== "production"
+      ? err.stack
+      : undefined,
   });
 });
 
