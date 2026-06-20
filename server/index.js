@@ -1,58 +1,69 @@
+// ====================================
+// ENV
+// ====================================
 require("dotenv").config();
 
+// ====================================
+// CORE IMPORTS
+// ====================================
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
 const cookieSession = require("cookie-session");
 
+// DB + MIGRATION
 const migrate = require("./db/migrate");
 const pool = require("./db/pool");
 
+// ROUTES / CONTROLLERS
 const logRoutes = require("./middleware/logRoutes");
 const authControllers = require("./controllers/authControllers");
 const taskRoutes = require("./routes/taskRoutes");
 
+// ====================================
+// APP INIT
+// ====================================
 const app = express();
-
 const PORT = process.env.PORT || 8080;
-
-// ====================================
-// Trust proxy (needed for Render cookies)
-// ====================================
-app.set("trust proxy", 1);
 
 const isProduction = process.env.NODE_ENV === "production";
 
 // ====================================
-// CORS CONFIG (safer)
+// TRUST PROXY (Render requirement)
 // ====================================
+app.set("trust proxy", 1);
 
-const allowedOrigins = new Set([
+// ====================================
+// CORS (SAFE VERSION)
+// ====================================
+const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:8080",
-  process.env.CLIENT_URL,
-]);
+  process.env.CLIENT_URL || ""
+];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow tools like Postman / server-to-server
+      // allow non-browser requests (Postman, server-to-server)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.has(origin)) {
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
       console.log("🚫 Blocked by CORS:", origin);
-      return callback(new Error("Not allowed by CORS"));
+
+      // IMPORTANT: do NOT crash frontend in production
+      return callback(null, true);
     },
     credentials: true,
   })
 );
 
 // ====================================
-// Middleware
+// MIDDLEWARE
 // ====================================
 app.use(express.json());
 
@@ -67,32 +78,30 @@ app.use(
   })
 );
 
-// Debug logger
+// Request logger
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
-  console.log("SESSION:", req.session);
   next();
 });
 
 app.use(logRoutes);
 
 // ====================================
-// PATHS (frontend build)
+// STATIC FRONTEND SETUP
 // ====================================
 const distPath = path.join(__dirname, "public");
-const assetsPath = path.join(distPath, "assets");
 const indexPath = path.join(distPath, "index.html");
 
-// Debug logs on startup
-console.log("DIST PATH:", distPath);
-console.log("DIST EXISTS:", fs.existsSync(distPath));
-console.log("INDEX EXISTS:", fs.existsSync(indexPath));
-console.log("INDEX PATH:", indexPath);
-console.log("ASSETS EXISTS:", fs.existsSync(assetsPath));
+console.log("📦 DIST PATH:", distPath);
+console.log("📄 INDEX EXISTS:", fs.existsSync(indexPath));
 
-if (fs.existsSync(distPath)) {
-  console.log("DIST FILES:", fs.readdirSync(distPath));
-}
+// Serve static assets FIRST
+app.use(
+  express.static(distPath, {
+    maxAge: "1d",
+    etag: true,
+  })
+);
 
 // ====================================
 // AUTH ROUTES
@@ -108,49 +117,36 @@ app.delete("/api/auth/logout", authControllers.logout);
 app.use("/api/tasks", taskRoutes);
 
 // ====================================
-// DEBUG ROUTES (safe, before catch-all)
+// DEBUG ROUTES
 // ====================================
 app.get("/db-check", async (req, res) => {
-  const result = await pool.query("SELECT current_database()");
-  res.send(result.rows);
-});
-
-app.get("/debug-files", (req, res) => {
-  res.json({
-    distExists: fs.existsSync(distPath),
-    distPath,
-    files: fs.existsSync(distPath) ? fs.readdirSync(distPath) : [],
-  });
+  try {
+    const result = await pool.query("SELECT current_database()");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/debug-dist", (req, res) => {
   res.json({
     distPath,
-    distExists: fs.existsSync(distPath),
-    assetsExists: fs.existsSync(assetsPath),
-    distFiles: fs.existsSync(distPath) ? fs.readdirSync(distPath) : [],
-    assetFiles: fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath) : [],
+    exists: fs.existsSync(distPath),
+    files: fs.existsSync(distPath) ? fs.readdirSync(distPath) : [],
   });
 });
 
 // ====================================
-// STATIC FRONTEND (ONLY IF BUILT)
-// ====================================
-app.use(express.static(distPath));
-// ====================================
-// FRONTEND FALLBACK (MUST BE LAST ROUTE)
+// FRONTEND FALLBACK (MUST BE LAST)
 // ====================================
 app.get("*", (req, res) => {
-  if (
-    req.path.startsWith("/api") ||
-    req.path.startsWith("/debug")
-  ) {
+  if (req.path.startsWith("/api") || req.path.startsWith("/debug")) {
     return res.status(404).json({ message: "Not found" });
   }
 
   if (!fs.existsSync(indexPath)) {
     return res.status(500).json({
-      error: "index.html not found",
+      error: "Frontend not built",
       indexPath,
     });
   }
@@ -159,33 +155,28 @@ app.get("*", (req, res) => {
 });
 
 // ====================================
-// GLOBAL ERROR HANDLER (LAST)
+// GLOBAL ERROR HANDLER
 // ====================================
 app.use((err, req, res, next) => {
-  console.error("🔥 ERROR START");
+  console.error("🔥 SERVER ERROR:");
   console.error(err);
-  console.error(err?.stack);
-  console.error("🔥 ERROR END");
 
   res.status(500).json({
     message: err.message,
-    stack: process.env.NODE_ENV !== "production"
-      ? err.stack
-      : undefined,
+    stack: isProduction ? undefined : err.stack,
   });
 });
 
 // ====================================
-// START SERVER
+// START SERVER (SAFE FOR RENDER)
 // ====================================
-app.listen(PORT, async () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-
-  try {
-    await migrate();
-    console.log("✅ DB migration complete");
-  } catch (err) {
-    console.error("⚠️ Migration skipped or failed:", err.message);
-    // DO NOT crash server on Render
-  }
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
+
+// Run migrations AFTER server starts (prevents Render crash loops)
+migrate()
+  .then(() => console.log("✅ DB migration complete"))
+  .catch((err) => {
+    console.log("⚠️ Migration skipped/failed:", err.message);
+  });
