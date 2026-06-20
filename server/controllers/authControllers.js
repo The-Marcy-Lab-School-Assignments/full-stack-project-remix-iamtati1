@@ -6,7 +6,7 @@ module.exports.register = async (req, res, next) => {
 
     if (!username || !password) {
       return res.status(400).json({
-        error: 'Username and password are required.'
+        error: "Username and password are required."
       });
     }
 
@@ -14,13 +14,12 @@ module.exports.register = async (req, res, next) => {
 
     if (existingUser) {
       return res.status(400).json({
-        error: 'Username already taken.'
+        error: "Username already taken."
       });
     }
 
     const user = await userModel.create(username, password);
 
-    // ✅ CONSISTENT SESSION KEY
     req.session.user_id = user.user_id;
 
     return res.status(201).json({
@@ -28,9 +27,15 @@ module.exports.register = async (req, res, next) => {
     });
 
   } catch (err) {
-    next(err);
+    console.error("LOGIN ERROR:");
+    console.error(err);
+    console.error(err.stack);
+
+    return res.status(500).json({
+      error: err.message,
+    });
   }
-};
+}
 
 
 

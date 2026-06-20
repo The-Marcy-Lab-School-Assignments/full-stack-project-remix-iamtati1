@@ -1,7 +1,11 @@
 // ====================================
 // ENV
 // ====================================
-require("dotenv").config();
+try {
+  require("dotenv").config();
+} catch (e) {
+  console.log("dotenv missing - continuing");
+}
 
 // ====================================
 // CORE IMPORTS

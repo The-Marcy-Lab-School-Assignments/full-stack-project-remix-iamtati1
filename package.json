@@ -1,7 +1,9 @@
 {
   "scripts": {
-    "build": "npm install --prefix frontend && npm run build --prefix frontend && mkdir -p server/public && cp -r frontend/dist/* server/public && npm install --prefix server",
-    "start": "node server/index.js"
+    "install": "npm install --prefix server && npm install --prefix frontend",
+    "build": "npm run build --prefix frontend && mkdir -p server/public && cp -r frontend/dist/* server/public",
+    "start": "node server/index.js",
+    "postinstall": "npm install --prefix server && npm install --prefix frontend"
   },
   "devDependencies": {
     "autoprefixer": "^10.5.0",

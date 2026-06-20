@@ -1,5 +1,10 @@
 const { Pool } = require("pg");
-require("dotenv").config();
+
+try {
+  require("dotenv").config();
+} catch (e) {
+  console.log("dotenv missing - continuing");
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
