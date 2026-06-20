@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && mkdir -p ../server/public && cp -r dist/* ../server/public",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && mkdir -p server/public && cp -r frontend/dist/* server/public && npm install --prefix server",
     "start": "node server/index.js"
   },
   "devDependencies": {
