@@ -79,13 +79,15 @@ app.use(logRoutes);
 // ====================================
 // PATHS (frontend build)
 // ====================================
-const distPath = path.join(__dirname, "public");
+const distPath = path.join(__dirname, "../frontend/dist");
 const assetsPath = path.join(distPath, "assets");
 const indexPath = path.join(distPath, "index.html");
 
 // Debug logs on startup
 console.log("DIST PATH:", distPath);
 console.log("DIST EXISTS:", fs.existsSync(distPath));
+console.log("INDEX EXISTS:", fs.existsSync(indexPath));
+console.log("INDEX PATH:", indexPath);
 console.log("ASSETS EXISTS:", fs.existsSync(assetsPath));
 
 if (fs.existsSync(distPath)) {
@@ -146,7 +148,12 @@ app.get("*", (req, res) => {
     return res.status(404).json({ message: "Not found" });
   }
 
-  // IMPORTANT: DO NOT intercept assets
+  if (!fs.existsSync(indexPath)) {
+    return res.status(500).json({
+      error: "index.html not found",
+      indexPath,
+    });
+  }
 
   res.sendFile(indexPath);
 });
