@@ -79,7 +79,7 @@ app.use(logRoutes);
 // ====================================
 // PATHS (frontend build)
 // ====================================
-const distPath = path.join(__dirname, "../frontend/dist");
+const distPath = path.join(__dirname, "public");
 const assetsPath = path.join(distPath, "assets");
 const indexPath = path.join(distPath, "index.html");
 
